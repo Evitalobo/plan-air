@@ -1,0 +1,130 @@
+# Plan Air
+
+A coded prototype of **Planner** — a desktop app for one person running several
+unrelated projects at once: product design work, a product-management scoping
+project, a hand-tufting craft project, and a music release. It holds the plan
+and the notes in the same place.
+
+The organising idea: **every project defines its own phase vocabulary**, and
+every to-do belongs to one of that project's phases. Nothing in the app assumes
+a single shared workflow.
+
+Built from the `design_handoff_planner` bundle (high-fidelity spec, fixed
+1440 × 900 desktop window).
+
+## Running it
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production build into dist/
+npm run preview  # serve the production build
+```
+
+Node 18+. No other setup.
+
+## Stack
+
+React 18 + TypeScript + Vite, plain CSS. No component library and no state
+library — the prototype is small enough that adding either would obscure the
+design rather than serve it. Everything is deliberately easy to lift into an
+existing codebase:
+
+- **Design tokens** live as CSS custom properties in `src/styles/tokens.css`.
+  Every colour, radius and shadow in the handoff resolves to one of them.
+- **Icons** are a single file of stroke SVGs (`src/components/Icon.tsx`)
+  standing in for the placeholder glyphs (▤ ◫ ✎ ⚑ ⌕ ✓ ↗ ＋ ?). Swap the file
+  for a real icon library and keep the names.
+- **Data** is typed against the handoff's de-facto schema and lives apart from
+  the components, so replacing it with an API is a one-file change.
+
+## Screens
+
+**Desk** (`src/components/Desk.tsx`) — the dashboard. Answers "what am I doing
+today, and what is waiting on me" across all projects: a resume card, one
+pipeline card per project, an "Up next" list, and a right rail of recent notes,
+open questions and the week ahead.
+
+**Project detail** (`src/components/ProjectScreen.tsx`) — one page per project:
+phase pipeline with open counts, an eight-week timeline, at-a-glance facts,
+links, the to-do table with subtasks, two project-specific cards, and — for a
+project carrying parallel options — an A/B/C direction dossier.
+
+## What is wired
+
+- Sidebar rows, Desk project cards and "Open project" all navigate. Selecting a
+  project resets the to-do filter to "All".
+- Filter chips: **All** keeps authored order, **Open** hides completed tasks,
+  **High first** sorts incomplete before complete, then High → Medium → Low.
+- Direction tabs swap the entire dossier below.
+- **Checkboxes are real.** Ticking a task or subtask updates the struck-through
+  row, the phase pipeline's "N open" counts, the "Open to-dos" fact and the
+  to-do header count — all derived, never stored. A task ticked on the Desk's
+  "Up next" list is the same task inside the project.
+- **The add drawer is real.** The floating button bottom-right opens a drawer
+  with a form per kind. A note lands at the top of Recent notes; a task lands in
+  its project's to-do table and moves that phase's open count; a link lands in
+  the project's links row, and a `STORY` link clears the dashed "Add story link"
+  affordance. Escape closes it, and the sidebar's Quick capture opens it.
+
+Everything else is an unwired affordance marking where a flow belongs:
+"New note", "New project", "Add note", "＋ Add a task", "＋ Add a subtask",
+"＋ New pattern direction", "Log this as a decision", search, and the project
+CTA.
+
+No modals, no loading states, no error states — none were designed.
+
+## Layout
+
+The app fills the viewport — the OS window is the only frame. It holds from
+roughly 960px up, giving way in this order as the window narrows:
+
+| Width | What changes |
+|---|---|
+| 1400 | Right rail narrows, screen padding tightens |
+| 1240 | The to-do table drops its Window column |
+| 1180 | Side-by-side cards stack — timeline/at-a-glance, the extras pair, the dossier pairs |
+| 1080 | The right rail moves under the main column, its three blocks in a row |
+| 960 | Sidebar collapses to an icon rail |
+
+All of it lives in one block at the end of `app.css`.
+
+One layout rule worth keeping: every card in the project screen's scrolling
+body is `flex: none`. Cards with `overflow: hidden` collapse to zero height
+inside a fixed-height flex column otherwise.
+
+## Project structure
+
+```
+src/
+  data/
+    types.ts        the schema — Project, Todo, Subtask, Direction
+    projects.ts     the four projects, each with its own phase vocabulary
+    directions.ts   the three parallel pattern directions
+    desk.ts         dashboard content that belongs to no single project
+    theme.ts        phase/priority/status colour lookups
+  state/
+    store.tsx       screen, selected project, selected direction, filter
+    selectors.ts    derived values — open counts, filtered lists, facts
+  components/       one file per region of the two screens
+  styles/
+    tokens.css      design tokens
+    app.css         component styles
+```
+
+## What a real implementation still needs
+
+Persistence; task and subtask CRUD; note CRUD with tags; link records with an
+external-tracker sync (Aha, in the handoff); and a decisions log — the
+"Decisions" nav item and the "Log this as a decision" button are both unbuilt.
+
+The `Direction` type is currently tufting-flavoured (yarn, pile, backing) because
+that is the only project using it. Generalising the two spec slots is the first
+change if another project grows directions.
+
+## Typography
+
+Interface: **Bricolage Grotesque**. Reading and editorial — note excerpts,
+briefs, research bodies, verdicts, questions and the two screen titles:
+**Newsreader**. Both load from Google Fonts in `index.html`; self-host them for
+an offline desktop build.

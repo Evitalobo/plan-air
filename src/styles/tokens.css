@@ -1,0 +1,84 @@
+/* Design tokens — lifted verbatim from the Planner handoff.
+   Every hard-coded colour in the mockup resolves to one of these. */
+
+:root {
+  /* Type */
+  --font-ui: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-read: Newsreader, Georgia, serif;
+  --font-mono: ui-monospace, Menlo, monospace;
+
+  /* Ink */
+  --ink: #101a21;
+  --ink-2: #293840;
+  --body: #46555d;
+  --muted: #5b6a72;
+  --dim: #7b8a91;
+  --dim-2: #8b979d;
+  --faint: #9aa6ab;
+
+  /* Accent */
+  --accent: #2f6f4e;
+  --accent-dark: #245a3f;
+  --accent-mid: #93c0a6;
+  --accent-wash: #edf4ef;
+  --accent-line: #d9e8de;
+  --accent-ink: #17352a;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-2: #f6f8f9;
+  --surface-3: #fafbfc;
+  --surface-4: #f1f4f5;
+  --page: #e6ebee;
+
+  /* Lines */
+  --line: #e4e9ec;
+  --line-2: #eef1f3;
+  --line-3: #dde3e6;
+  --line-dash: #d3dbdf;
+
+  /* States */
+  --hover: #f8fafb;
+  --hover-2: #eceff1;
+  --selected: #e7efe9;
+  --card-hover-line: #c9d8de;
+
+  /* Semantic */
+  --warn-fg: #7a6132;
+  --warn-bg: #f6ece4;
+  --risk-fg: #8a4a3a;
+  --risk-bg: #f3ded8;
+  --prio-med: #c9902f;
+  --prio-low: #b6c0c4;
+  --checkbox-line: #c9d2d6;
+
+  /* Project kinds */
+  --kind-music: #5b4a76;
+  --kind-product: #c9902f;
+  --kind-craft: #2f6f4e;
+
+  /* Warm card */
+  --warm-card-bg: #fbf7f5;
+  --warm-card-line: #ecdfd9;
+  --warm-card-body: #5d4f49;
+  --warm-card-meta: #a98f85;
+
+  /* Question mark glyph */
+  --query: #b0723f;
+
+  /* Radii */
+  --r-check: 4px;
+  --r-bar: 5px;
+  --r-control: 7px;
+  --r-note: 9px;
+  --r-card: 11px;
+  --r-window: 14px;
+  --r-pill: 20px;
+
+  /* Shadow */
+  --shadow-window: 0 1px 2px rgba(16, 26, 33, 0.08), 0 24px 60px -18px rgba(16, 26, 33, 0.32);
+  --shadow-card-hover: 0 2px 10px -4px rgba(16, 26, 33, 0.14);
+
+  /* Motion — the mockup is instant; 120ms ease is sanctioned by the handoff. */
+  --t: 120ms ease;
+}
