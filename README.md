@@ -1,16 +1,20 @@
 # Plan Air
 
-A coded prototype of **Planner** — a desktop app for one person running several
-unrelated projects at once: product design work, a product-management scoping
-project, a hand-tufting craft project, and a music release. It holds the plan
-and the notes in the same place.
+A tool to make project planning easier, with the use of customizable templates.
 
-The organising idea: **every project defines its own phase vocabulary**, and
-every to-do belongs to one of that project's phases. Nothing in the app assumes
-a single shared workflow.
+A coded prototype of the **Planner** design handoff — a desktop app for one
+person running several unrelated projects at once: product design work, a
+product-management scoping project, a hand-tufting craft project, and a music
+release. It holds the plan and the notes in the same place.
 
-Built from the `design_handoff_planner` bundle (high-fidelity spec, fixed
-1440 × 900 desktop window).
+The template each project customises is its **phase vocabulary**. A product
+project runs Discovery → Definition → Build → Validation → Launch; a rug runs
+Discovery → Definition → Build; an EP runs Reference → Sound design →
+Composition → Mix → Release. Every to-do belongs to one of its own project's
+phases, and nothing in the app assumes a single shared workflow.
+
+Built from the `design_handoff_planner` bundle — a high-fidelity spec, since
+extended to fill the window and adapt across desktop widths.
 
 ## Running it
 
