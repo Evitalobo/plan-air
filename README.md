@@ -29,10 +29,7 @@ Node 18+. No other setup.
 
 ## Stack
 
-React 18 + TypeScript + Vite, plain CSS. No component library and no state
-library — the prototype is small enough that adding either would obscure the
-design rather than serve it. Everything is deliberately easy to lift into an
-existing codebase:
+React 18 + TypeScript + Vite, plain CSS. N
 
 - **Design tokens** live as CSS custom properties in `src/styles/tokens.css`.
   Every colour, radius and shadow in the handoff resolves to one of them.
@@ -71,10 +68,6 @@ project carrying parallel options — an A/B/C direction dossier.
   the project's links row, and a `STORY` link clears the dashed "Add story link"
   affordance. Escape closes it, and the sidebar's Quick capture opens it.
 
-Everything else is an unwired affordance marking where a flow belongs:
-"New note", "New project", "Add note", "＋ Add a task", "＋ Add a subtask",
-"＋ New pattern direction", "Log this as a decision", search, and the project
-CTA.
 
 No modals, no loading states, no error states — none were designed.
 
@@ -91,11 +84,7 @@ roughly 960px up, giving way in this order as the window narrows:
 | 1080 | The right rail moves under the main column, its three blocks in a row |
 | 960 | Sidebar collapses to an icon rail |
 
-All of it lives in one block at the end of `app.css`.
 
-One layout rule worth keeping: every card in the project screen's scrolling
-body is `flex: none`. Cards with `overflow: hidden` collapse to zero height
-inside a fixed-height flex column otherwise.
 
 ## Project structure
 
@@ -116,19 +105,4 @@ src/
     app.css         component styles
 ```
 
-## What a real implementation still needs
 
-Persistence; task and subtask CRUD; note CRUD with tags; link records with an
-external-tracker sync (Aha, in the handoff); and a decisions log — the
-"Decisions" nav item and the "Log this as a decision" button are both unbuilt.
-
-The `Direction` type is currently tufting-flavoured (yarn, pile, backing) because
-that is the only project using it. Generalising the two spec slots is the first
-change if another project grows directions.
-
-## Typography
-
-Interface: **Bricolage Grotesque**. Reading and editorial — note excerpts,
-briefs, research bodies, verdicts, questions and the two screen titles:
-**Newsreader**. Both load from Google Fonts in `index.html`; self-host them for
-an offline desktop build.
