@@ -3,6 +3,7 @@ import { nextTodo } from '../state/selectors';
 import { usePlanner } from '../state/store';
 import { useEffect, useRef, useState } from 'react';
 import { NewProjectDrawer, PLACEMENT } from './NewProjectDrawer';
+import { Icon } from './Icon';
 import { Pipeline } from './Pipeline';
 
 export function Desk() {
@@ -12,6 +13,22 @@ export function Desk() {
     newCard.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [lastAddedId]);
   const [drawer, setDrawer] = useState(false);
+  // The notes column starts minimized; the choice is remembered in this browser.
+  const [railOpen, setRailOpen] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('planair:rail') === 'open';
+    } catch {
+      return false;
+    }
+  });
+  const toggleRail = (open: boolean) => {
+    setRailOpen(open);
+    try {
+      localStorage.setItem('planair:rail', open ? 'open' : 'closed');
+    } catch {
+      /* not stored: fine for this visit */
+    }
+  };
 
   // Full-page placement: the flow replaces the Desk until it is done or cancelled.
   if (drawer && PLACEMENT === 'page') {
@@ -82,7 +99,12 @@ export function Desk() {
       </main>
 
       {/* Right rail ----------------------------------------------- */}
-      <aside className="rail">
+      {railOpen ? (
+        <aside className="rail" id="desk-rail" aria-label="Notes, questions and this week">
+          <button type="button" className="rail__min" onClick={() => toggleRail(false)} aria-expanded="true" aria-controls="desk-rail">
+            <Icon name="arrow-right" size={14} />
+            Minimize
+          </button>
         <section className="rail__block">
           <div className="rail__head">
             <h2 className="rail__title">Recent notes</h2>
@@ -134,6 +156,15 @@ export function Desk() {
           </div>
         </section>
       </aside>
+      ) : (
+        <aside className="rail rail--min" aria-label="Notes, questions and this week (minimized)">
+          <button type="button" className="rail__expand" onClick={() => toggleRail(true)} aria-expanded="false" title="Show notes, questions and this week">
+            <Icon name="notes" size={16} />
+            <span className="rail__expand-label">Notes</span>
+            <span className="rail__expand-count">{notes.length}</span>
+          </button>
+        </aside>
+      )}
     </div>
   );
 }
