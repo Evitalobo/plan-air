@@ -2070,3 +2070,125 @@ button.capture { font: inherit; text-align: left; background: none; cursor: poin
 .btn--quiet { background: none; border: 0; color: var(--muted); }
 .btn--quiet:hover { color: var(--red); background: var(--darkred-wash); }
 .confirm-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); }
+
+/* ───────────────────────── full-screen website layout (no mock window) ── */
+/* The app fills the browser window. The sidebar and each screen pane scroll
+   on their own; flex children need min-height: 0 or they grow to fit their
+   content and the scroll container never overflows. */
+html, body, #root { height: 100%; }
+body { background: var(--surface); }
+.app { height: 100dvh; min-height: 0; }
+.sidebar { min-height: 0; overflow-y: auto; }
+.screen { min-height: 0; }
+.desk, .project { min-height: 0; }
+.desk__main, .rail, .project__body { min-height: 0; }
+@media (max-width: 1240px) { .desk { overflow-y: auto; } }
+@media (max-width: 720px) {
+  /* Phone: the whole page scrolls; the sidebar becomes a sticky top bar. */
+  .app { height: auto; min-height: 100dvh; }
+  .screen, .desk, .project, .project__body, .desk__main { overflow: visible; }
+}
+
+/* ───────────────────────── custom form: steps and the arrange canvas ── */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 18px; font-size: 12.5px; color: var(--muted); }
+.steps li { display: inline-flex; align-items: center; gap: 7px; }
+.steps span { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--checkbox-line); font-size: 11px; font-weight: 600; }
+.steps__on { color: var(--ink); font-weight: 600; }
+.steps__on span { background: var(--darkred); border-color: var(--darkred); color: #fff; }
+.steps__done span { border-color: var(--darkred); color: var(--darkred); }
+
+.arrange { display: flex; flex-direction: column; gap: 12px; }
+.arrange__help { margin: 0; font-size: 12.5px; color: var(--muted); max-width: 70ch; }
+.arrange__page { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-3); padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.arrange__header { display: flex; flex-direction: column; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.arrange__crumb { font-size: 11px; color: var(--muted); }
+.arrange__titleline { display: flex; align-items: center; gap: 10px; }
+.arrange__icon { color: var(--darkred); display: inline-flex; }
+.arrange__title { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+.arrange__badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; background: var(--accent-wash); color: var(--darkred); }
+.arrange__pipeline { display: flex; gap: 5px; margin-top: 4px; }
+.arrange__phase { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.arrange__track { display: flex; align-items: center; gap: 4px; }
+.arrange__node { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #dcc8c8; background: #fff; flex: none; }
+.arrange__node--now { border-color: var(--accent-mid); }
+.arrange__bar { flex: 1; height: 3px; border-radius: 3px; background: var(--selected); }
+.arrange__phase-label { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.arrange__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+.block {
+  min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 10px 12px 14px;
+  background: #fff; border: 1px solid var(--line); border-radius: 11px; cursor: grab; position: relative;
+}
+.block:hover { border-color: var(--card-hover-line); box-shadow: var(--shadow-card-hover); }
+.block--dragging { opacity: 0.4; }
+.block--drop-before::before, .block--drop-after::after {
+  content: ''; position: absolute; top: 4px; bottom: 4px; width: 3px; border-radius: 3px; background: var(--darkred);
+}
+.block--drop-before::before { left: -9px; }
+.block--drop-after::after { right: -9px; }
+.block--empty { cursor: default; align-items: center; justify-content: center; min-height: 120px; color: var(--muted); font-size: 13px; border-style: dashed; }
+.block__bar { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.block__handle { width: 28px; height: 28px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: none; color: #9aa6ab; cursor: grab; }
+.block__handle:hover { background: var(--hover-2); color: var(--ink); }
+.block__handle:focus-visible, .block__width:focus-visible { outline: 2px solid var(--darkred); outline-offset: 1px; }
+.block__name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.block__widths { display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-4); border-radius: 7px; flex: none; }
+.block__width { min-width: 30px; height: 26px; padding: 0 6px; border: 0; border-radius: 5px; background: none; font: inherit; font-size: 11.5px; font-weight: 500; color: var(--body); cursor: pointer; }
+.block__width--on { background: #fff; color: var(--darkred); font-weight: 700; box-shadow: 0 1px 2px rgba(16, 26, 33, 0.12); }
+.icon-btn--bare { width: 28px; height: 28px; border: 0; background: none; }
+
+/* Skeletons: the section's shape with no data in it. */
+.sk { display: flex; flex-direction: column; gap: 9px; padding: 0 2px; }
+.sk--row { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+.sk__line { display: block; height: 8px; border-radius: 4px; background: #eef1f3; flex: 1; min-width: 30px; }
+.sk__line--label { flex: none; width: 56px; }
+.sk__line--k { flex: none; width: 34%; background: #e6eaed; }
+.sk__line--wide { flex-basis: 100%; }
+.sk__kv, .sk__task { display: flex; align-items: center; gap: 10px; }
+.sk__item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line-2); }
+.sk__item:last-child { border-bottom: 0; }
+.sk__tlrow { display: flex; align-items: center; gap: 8px; }
+.sk__tlbar { display: block; height: 12px; border-radius: 4px; background: var(--selected); }
+.sk__pill { width: 120px; height: 24px; border-radius: 7px; border: 1px solid var(--line-3); background: #fff; }
+.sk__pill--dash { width: auto; padding: 0 10px; border-style: dashed; display: inline-flex; align-items: center; font-size: 11.5px; color: var(--muted); }
+.sk__group { display: flex; flex-direction: column; gap: 6px; }
+.sk__grouplabel { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.sk__box { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--checkbox-line); flex: none; }
+.sk__chip { width: 54px; height: 16px; border-radius: 20px; background: var(--surface-4); flex: none; }
+.sk__tab { padding: 4px 12px; border-radius: 6px; background: var(--surface-4); font-size: 12px; font-weight: 600; color: var(--muted); }
+
+/* Custom project pages use the same 6-column grid. */
+.custom-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 22px; align-items: start; }
+.custom-grid__cell { min-width: 0; display: flex; flex-direction: column; }
+.custom-grid__cell > .card, .custom-grid__cell > .row, .custom-grid__cell > * { width: 100%; box-sizing: border-box; }
+@media (max-width: 900px) {
+  .custom-grid, .arrange__grid { grid-template-columns: 1fr; }
+  .custom-grid__cell, .block { grid-column: auto !important; }
+}
+.np--side .arrange__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+/* The project just created, pointed out on the Desk. */
+.proj-card--new { border-color: var(--darkred); box-shadow: 0 0 0 3px var(--darkred-wash); animation: new-card 1.6s ease 1; }
+.proj-card__new { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; background: var(--darkred); padding: 2px 7px; border-radius: 20px; }
+@keyframes new-card { 0%, 40% { box-shadow: 0 0 0 6px rgba(80, 0, 0, 0.18); } 100% { box-shadow: 0 0 0 3px var(--darkred-wash); } }
+@media (prefers-reduced-motion: reduce) { .proj-card--new { animation: none; } }
+
+/* Sections adapt to the width they're given on a custom page, not the window. */
+.custom-grid__cell { container-type: inline-size; }
+@container (max-width: 760px) {
+  .todo-grid { grid-template-columns: 40px minmax(0, 1fr) 104px 78px 52px; }
+  .todo-grid > :nth-child(5) { display: none; }
+  .sub { grid-template-columns: 16px minmax(0, 1fr) 52px; }
+  .sub > :nth-child(3) { display: none; }
+}
+@container (max-width: 520px) {
+  .todo-cols { display: none; }
+  .todo__row { grid-template-columns: 40px auto auto minmax(0, 1fr); grid-template-areas: "box text text text" ". phase prio due"; gap: 6px 10px; }
+  .todo__row > :nth-child(1) { grid-area: box; }
+  .todo__row > :nth-child(2) { grid-area: text; }
+  .todo__row > :nth-child(3) { grid-area: phase; }
+  .todo__row > :nth-child(4) { grid-area: prio; }
+  .todo__row > :nth-child(6) { grid-area: due; }
+  .tl-grid { min-width: 480px; }
+  .timeline { overflow-x: auto; }
+}

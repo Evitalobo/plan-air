@@ -13,6 +13,12 @@ export type ProjectKind = 'pm' | 'tufting' | 'music' | 'custom';
 /** Where a timeline bar sits relative to the project's current phase. */
 export type BarState = 'done' | 'now' | 'later';
 
+/** One section placed on a custom project page. */
+export interface LayoutItem {
+  key: SectionKey;
+  span: 2 | 3 | 4 | 6;
+}
+
 /** A block a project page can show; `extra:<title>` is a project-specific card. */
 export type SectionKey = 'timeline' | 'glance' | 'links' | 'todos' | 'directions' | `extra:${string}`;
 
@@ -126,6 +132,8 @@ export interface Project {
   noteCount: number;
   /** Custom projects list their page sections in order; built-ins use the default layout. */
   sections?: SectionKey[];
+  /** Custom page layout: each section's width on a 6-column grid (2 = a third … 6 = full). */
+  layout?: LayoutItem[];
   /** A person-made type (kind 'custom'): its name and icon. */
   typeLabel?: string;
   icon?: string;

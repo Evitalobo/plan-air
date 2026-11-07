@@ -1,12 +1,16 @@
 import { DESK, QUESTIONS, WEEK, WEEK_TONE } from '../data/desk';
 import { nextTodo } from '../state/selectors';
 import { usePlanner } from '../state/store';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NewProjectDrawer, PLACEMENT } from './NewProjectDrawer';
 import { Pipeline } from './Pipeline';
 
 export function Desk() {
-  const { projects, notes, openProject, setPhase } = usePlanner();
+  const { projects, notes, openProject, setPhase, lastAddedId } = usePlanner();
+  const newCard = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    newCard.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [lastAddedId]);
   const [drawer, setDrawer] = useState(false);
 
   // Full-page placement: the flow replaces the Desk until it is done or cancelled.
@@ -50,11 +54,13 @@ export function Desk() {
               <button
                 type="button"
                 key={p.id}
-                className="card proj-card"
+                className={`card proj-card${p.id === lastAddedId ? ' proj-card--new' : ''}`}
+                ref={p.id === lastAddedId ? newCard : undefined}
                 onClick={() => openProject(p.id)}
               >
                 <div className="proj-card__top">
                   <span className="proj-card__name">{p.name}</span>
+                  {p.id === lastAddedId && <span className="proj-card__new">New</span>}
                   <span className="proj-card__kind">{p.deskKind}</span>
                   <span className="grow" />
                   {p.deskMeta && <span className="proj-card__meta">{p.deskMeta}</span>}
