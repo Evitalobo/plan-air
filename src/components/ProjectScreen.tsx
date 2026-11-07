@@ -113,21 +113,25 @@ export function ProjectScreen() {
   );
 }
 
-/** A custom project's page: the sections it chose, in the order it chose them. */
+/** A custom project's page: its sections on a 6-column grid, in the order and widths chosen. */
 function CustomSections({ project, direction }: { project: Project; direction: Direction }) {
-  const keys = project.sections ?? [];
+  const layout = project.layout ?? (project.sections ?? []).map((key) => ({ key, span: 6 as const }));
   return (
-    <>
-      {keys.map((k) => {
-        if (k === 'timeline') return <div className="row" key={k}><Timeline project={project} /></div>;
-        if (k === 'glance') return <div className="row" key={k}><Glance project={project} /></div>;
-        if (k === 'links') return <WorkCard key={k} project={project} todos={false} />;
-        if (k === 'todos') return <WorkCard key={k} project={project} links={false} />;
-        if (k === 'directions') return <Dossier key={k} direction={direction} />;
-        const extra = project.extras.find((x) => x.title === k.slice(6));
-        return extra ? <div className="row" key={k}><ExtraCard extra={extra} /></div> : null;
+    <div className="custom-grid">
+      {layout.map(({ key: k, span }) => {
+        let body = null;
+        if (k === 'timeline') body = <Timeline project={project} />;
+        else if (k === 'glance') body = <Glance project={project} />;
+        else if (k === 'links') body = <WorkCard project={project} todos={false} />;
+        else if (k === 'todos') body = <WorkCard project={project} links={false} />;
+        else if (k === 'directions') body = <Dossier direction={direction} />;
+        else {
+          const extra = project.extras.find((x) => x.title === k.slice(6));
+          body = extra ? <ExtraCard extra={extra} /> : null;
+        }
+        return body ? <div className="custom-grid__cell" key={k} style={{ gridColumn: `span ${span}` }}>{body}</div> : null;
       })}
-    </>
+    </div>
   );
 }
 

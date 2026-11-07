@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import { KIND } from '../data/theme';
-import { SECTION_LIBRARY, TEMPLATES, makeProject, sectionDef, type Template } from '../data/templates';
-import type { ProjectKind, SectionKey } from '../data/types';
+import { SECTION_LIBRARY, TEMPLATES, defaultSpan, makeProject, sectionDef, type Template } from '../data/templates';
+import type { LayoutItem, ProjectKind, SectionKey } from '../data/types';
+import { ArrangeLayout } from './ArrangeLayout';
 import { usePlanner } from '../state/store';
 import { Icon, type IconName } from './Icon';
 
@@ -34,7 +35,7 @@ const KIND_ICON: Record<ProjectKind, IconName> = { pm: 'laptop', music: 'music',
 type Step = { view: 'choose' } | { view: 'template'; template: Template } | { view: 'custom' };
 
 export function NewProjectDrawer({ onClose }: { onClose: () => void }) {
-  const { addProject, openProject } = usePlanner();
+  const { addProject, openProject, openDesk } = usePlanner();
   const [step, setStep] = useState<Step>({ view: 'choose' });
   // Types a person adds live for the session, so a second custom project can reuse them.
   const [types, setTypes] = useState<TypeOpt[]>(BUILT_IN_TYPES);
@@ -50,6 +51,12 @@ export function NewProjectDrawer({ onClose }: { onClose: () => void }) {
   const create = (p: ReturnType<typeof makeProject>) => {
     addProject(p);
     openProject(p.id);
+    onClose();
+  };
+  /** Custom projects land on the Desk, where the new card is pointed out. */
+  const createToDesk = (p: ReturnType<typeof makeProject>) => {
+    addProject(p);
+    openDesk();
     onClose();
   };
   const title = step.view === 'choose' ? 'New project' : step.view === 'template' ? `${step.template.label} template` : 'Custom project';
@@ -93,7 +100,7 @@ export function NewProjectDrawer({ onClose }: { onClose: () => void }) {
         <div className="np__scroll">
           {step.view === 'choose' && <Choose onTemplate={(t) => setStep({ view: 'template', template: t })} onCustom={() => setStep({ view: 'custom' })} />}
           {step.view === 'template' && <FromTemplate template={step.template} onCreate={create} />}
-          {step.view === 'custom' && <CustomBuilder types={types} setTypes={setTypes} onCreate={create} />}
+          {step.view === 'custom' && <CustomBuilder types={types} setTypes={setTypes} onCreate={createToDesk} />}
         </div>
       </div>
     </div>
@@ -236,7 +243,16 @@ function CustomBuilder({
   const [newIcon, setNewIcon] = useState<IconName>('star');
   const [phases, setPhases] = useState<string[]>(['Discovery', 'Definition', 'Build']);
   const [phaseDraft, setPhaseDraft] = useState('');
-  const [sections, setSections] = useState<SectionKey[]>(['todos']);
+  const [sections, setSections] = useState<SectionKey[]>(['timeline', 'glance', 'todos']);
+  const [stage, setStage] = useState<'setup' | 'arrange'>('setup');
+  const [layout, setLayout] = useState<LayoutItem[]>([]);
+  // Entering the arrange step: keep widths and order already chosen, add new sections, drop removed ones.
+  const toArrange = () => {
+    const kept = layout.filter((l) => sections.includes(l.key));
+    const added = sections.filter((k) => !kept.some((l) => l.key === k)).map((key) => ({ key, span: defaultSpan(key) }));
+    setLayout([...kept, ...added]);
+    setStage('arrange');
+  };
   const phaseDnD = useReorder(phases, setPhases);
   const secDnD = useReorder<SectionKey>(sections, setSections);
 
@@ -263,12 +279,21 @@ function CustomBuilder({
       className="np__body builder"
       onSubmit={(e) => {
         e.preventDefault();
+        if (stage === 'setup') return toArrange();
         onCreate(makeProject({
-          name, kind: type.kind, phases, sections, todos: [],
+          name, kind: type.kind, phases, sections: layout.map((l) => l.key), layout, todos: [],
           ...(type.kind === 'custom' ? { typeLabel: type.label, icon: type.icon } : {}),
         }));
       }}
     >
+      <ol className="steps" aria-label="Custom project steps">
+        <li className={stage === 'setup' ? 'steps__on' : 'steps__done'} aria-current={stage === 'setup' ? 'step' : undefined}><span>1</span> Set up</li>
+        <li className={stage === 'arrange' ? 'steps__on' : ''} aria-current={stage === 'arrange' ? 'step' : undefined}><span>2</span> Arrange the page</li>
+      </ol>
+      {stage === 'arrange' ? (
+        <ArrangeLayout name={name} typeIcon={type.icon} phases={phases} layout={layout} setLayout={setLayout} />
+      ) : (
+      <>
       <div className="builder__setup">
         <label className="field">
           <span className="field__label">Project name</span>
@@ -428,11 +453,27 @@ function CustomBuilder({
         </section>
       </div>
 
+      </>
+      )}
+
       <div className="np__foot">
+        {stage === 'arrange' && (
+          <button type="button" className="btn btn--ghost" onClick={() => setStage('setup')}>
+            <Icon name="arrow-left" size={14} />
+            Back to setup
+          </button>
+        )}
         <span className="np__note">
           <Icon name={type.icon} size={14} /> {type.label} · {phases.length} {phases.length === 1 ? 'phase' : 'phases'} · {sections.length} {sections.length === 1 ? 'section' : 'sections'}
         </span>
-        <button type="submit" className="btn btn--primary" disabled={!phases.length}>Create project</button>
+        {stage === 'setup' ? (
+          <button type="submit" className="btn btn--primary" disabled={!phases.length || !sections.length}>
+            Next: arrange the page
+            <Icon name="arrow-right" size={14} />
+          </button>
+        ) : (
+          <button type="submit" className="btn btn--primary" disabled={!layout.length}>Save project</button>
+        )}
       </div>
     </form>
   );
