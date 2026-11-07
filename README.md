@@ -166,3 +166,15 @@ and notes, tasks and links from Quick capture.
 `npm run seed` rewrites `server/seed.json` from `src/data/` after you change the
 sample data. Set `VITE_API_URL` to point the app at an API on another host,
 `PORT` to change the API port, `PLANAIR_DB` to move the database file.
+
+## Live prototype
+
+GitHub Pages (built by `.github/workflows/pages.yml` on every push to `main` or `placement/drawer`):
+
+- https://evitalobo.github.io/plan-air/ (drawer)
+- https://evitalobo.github.io/plan-air/modal/
+- https://evitalobo.github.io/plan-air/side/
+- https://evitalobo.github.io/plan-air/page/
+
+The hosted site has no API server, so each visitor's changes are saved in their own browser.
+Run `npm run dev` locally for the version backed by the SQLite API.

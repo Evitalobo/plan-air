@@ -1,0 +1,53 @@
+# Publishes the prototype to GitHub Pages:
+#   /         drawer placement
+#   /modal/   modal placement
+#   /side/    side-panel placement
+#   /page/    full-page placement
+# The hosted site has no API server, so it saves changes in each visitor's browser.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, placement/drawer]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - name: Build all four placements
+        run: |
+          VITE_NP_VARIANT=drawer npx vite build --outDir site
+          for v in modal side page; do
+            VITE_NP_VARIANT=$v npx vite build --outDir site/$v
+          done
+          touch site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
