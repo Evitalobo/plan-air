@@ -1,14 +1,22 @@
 {
-  "name": "plan-air",
+  "name": "planair",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Plan Air — a solo project planner that keeps the plan and the notes in the same place.",
+  "description": "planAir \u2014 a solo project planner that keeps the plan and the notes in the same place.",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.mjs",
+    "dev:app": "vite",
+    "server": "node server/index.mjs",
+    "seed": "esbuild scripts/export-seed.ts --bundle --platform=node --format=esm --outfile=scripts/.export-seed.mjs --log-level=warning && node scripts/.export-seed.mjs",
     "build": "tsc -b && vite build",
+    "start": "npm run build && node server/index.mjs",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:drawer": "VITE_NP_VARIANT=drawer vite build --outDir dist-drawer",
+    "build:modal": "VITE_NP_VARIANT=modal vite build --outDir dist-modal",
+    "build:side": "VITE_NP_VARIANT=side vite build --outDir dist-side",
+    "build:page": "VITE_NP_VARIANT=page vite build --outDir dist-page"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -19,6 +27,10 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "esbuild": "^0.21.5"
+  },
+  "engines": {
+    "node": ">=22.5"
   }
 }

@@ -30,7 +30,7 @@ export interface UpNext {
   urgent: boolean;
 }
 
-export const OWNER = { name: 'Evita' };
+export const OWNER = { name: 'Evita', mode: 'solo' };
 
 export const DESK = {
   title: 'Desk',
@@ -90,7 +90,7 @@ export const UP_NEXT: UpNext[] = [
   },
 ];
 
-/** Tags offered in the add drawer. Free text is allowed too. */
+/** Tags offered in the quick-add drawer. Free text is allowed too. */
 export const NOTE_TAGS = ['Materials', 'Decision', 'Technique', 'Sound', 'Research', 'Idea'];
 
 export const NOTES: Note[] = [
@@ -147,7 +147,7 @@ export const WEEK: WeekRow[] = [
 ];
 
 export const WEEK_TONE: Record<WeekRow['tone'], { bg: string; fg: string }> = {
-  accent: { bg: '#e7efe9', fg: '#2f6f4e' },
+  accent: { bg: '#f3e6e6', fg: '#500000' },
   neutral: { bg: '#f1f4f5', fg: '#46555d' },
   deadline: { bg: '#f3ded8', fg: '#8a4a3a' },
 };

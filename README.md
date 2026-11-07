@@ -1,35 +1,34 @@
-# Plan Air
+# planAir
 
-A tool to make project planning easier, with the use of customizable templates.
+A coded prototype of **Planner** — a desktop app for one person running several
+unrelated projects at once: product design work, a product-management scoping
+project, a hand-tufting craft project, and a music release. It holds the plan
+and the notes in the same place.
 
-A coded prototype of the **Planner** design handoff — a desktop app for one
-person running several unrelated projects at once: product design work, a
-product-management scoping project, a hand-tufting craft project, and a music
-release. It holds the plan and the notes in the same place.
+The organising idea: **every project defines its own phase vocabulary**, and
+every to-do belongs to one of that project's phases. Nothing in the app assumes
+a single shared workflow.
 
-The template each project customises is its **phase vocabulary**. A product
-project runs Discovery → Definition → Build → Validation → Launch; a rug runs
-Discovery → Definition → Build; an EP runs Reference → Sound design →
-Composition → Mix → Release. Every to-do belongs to one of its own project's
-phases, and nothing in the app assumes a single shared workflow.
-
-Built from the `design_handoff_planner` bundle — a high-fidelity spec, since
-extended to fill the window and adapt across desktop widths.
+Built from the `design_handoff_planner` bundle (high-fidelity spec, fixed
+1440 × 900 desktop window).
 
 ## Running it
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # API on :8787 + app on http://localhost:5173 (proxied /api)
+npm start        # production: build the app, serve app + API from :8787
 npm run build    # type-check + production build into dist/
-npm run preview  # serve the production build
 ```
 
-Node 18+. No other setup.
+Node 22.5+ (the API uses the built-in `node:sqlite`; nothing else to install).
 
 ## Stack
 
-React 18 + TypeScript + Vite, plain CSS. N
+React 18 + TypeScript + Vite, plain CSS. No component library and no state
+library — the prototype is small enough that adding either would obscure the
+design rather than serve it. Everything is deliberately easy to lift into an
+existing codebase:
 
 - **Design tokens** live as CSS custom properties in `src/styles/tokens.css`.
   Every colour, radius and shadow in the handoff resolves to one of them.
@@ -62,29 +61,24 @@ project carrying parallel options — an A/B/C direction dossier.
   row, the phase pipeline's "N open" counts, the "Open to-dos" fact and the
   to-do header count — all derived, never stored. A task ticked on the Desk's
   "Up next" list is the same task inside the project.
-- **The add drawer is real.** The floating button bottom-right opens a drawer
-  with a form per kind. A note lands at the top of Recent notes; a task lands in
-  its project's to-do table and moves that phase's open count; a link lands in
-  the project's links row, and a `STORY` link clears the dashed "Add story link"
-  affordance. Escape closes it, and the sidebar's Quick capture opens it.
 
+Everything else is an unwired affordance marking where a flow belongs:
+"New note", "New project", "Add note", "＋ Add a task", "＋ Add a subtask",
+"＋ Add story link", "＋ New pattern direction", "Log this as a decision", quick
+capture, search, and the project CTA.
 
 No modals, no loading states, no error states — none were designed.
 
 ## Layout
 
-The app fills the viewport — the OS window is the only frame. It holds from
-roughly 960px up, giving way in this order as the window narrows:
+Fixed 1440 × 900, not responsive; below that width the app scrolls rather than
+reflows. The window chrome drawn around the app (traffic lights, search field,
+date) stands in for the OS window — a packaged desktop build drops
+`WindowChrome` and the `.shell` wrapper.
 
-| Width | What changes |
-|---|---|
-| 1400 | Right rail narrows, screen padding tightens |
-| 1240 | The to-do table drops its Window column |
-| 1180 | Side-by-side cards stack — timeline/at-a-glance, the extras pair, the dossier pairs |
-| 1080 | The right rail moves under the main column, its three blocks in a row |
-| 960 | Sidebar collapses to an icon rail |
-
-
+One layout rule worth keeping: every card in the project screen's scrolling
+body is `flex: none`. Cards with `overflow: hidden` collapse to zero height
+inside a fixed-height flex column otherwise.
 
 ## Project structure
 
@@ -105,4 +99,70 @@ src/
     app.css         component styles
 ```
 
+## What a real implementation still needs
 
+Persistence; task and subtask CRUD; note CRUD with tags; link records with an
+external-tracker sync (Aha, in the handoff); and a decisions log — the
+"Decisions" nav item and the "Log this as a decision" button are both unbuilt.
+
+The `Direction` type is currently tufting-flavoured (yarn, pile, backing) because
+that is the only project using it. Generalising the two spec slots is the first
+change if another project grows directions.
+
+## Typography
+
+Interface: **Bricolage Grotesque**. Reading and editorial — note excerpts,
+briefs, research bodies, verdicts, questions and the two screen titles:
+**Newsreader**. Both load from Google Fonts in `index.html`; self-host them for
+an offline desktop build.
+
+## New-project placements
+
+"New project" opens a flow with three templates (Work, Music, Sewing) or a custom
+form builder. Where that flow opens is chosen at build time with `VITE_NP_VARIANT`:
+
+```bash
+npm run build:drawer  # bottom sheet (default for npm run dev / build)
+npm run build:modal   # centred dialog
+npm run build:side    # full-height panel on the right
+npm run build:page    # full page replacing the Desk
+```
+
+## What changed since the handoff
+
+- planAir brand: Gontserrat → Inter type, dark red (#500000) system colour, red primary buttons.
+- Clickable phase pipeline with a circle per phase and a small circle per task.
+- To-dos grouped by priority, with drag and drop between groups.
+- Subtasks on every big task; Moss Cube follows its real build steps.
+- Responsive layout down to phone width.
+
+## Backend
+
+`server/index.mjs` is a small Node server with SQLite storage
+(`server/data/planair.db`, created on first run and seeded from `server/seed.json`).
+Every project and note is one row holding its JSON.
+
+| Method | Path | What it does |
+|---|---|---|
+| GET | `/api/state` | All projects and notes |
+| GET / POST | `/api/projects` | List, or create a project (409 if the id exists) |
+| GET / PUT / PATCH / DELETE | `/api/projects/:id` | Read, replace, partially update, delete |
+| PUT | `/api/projects/order` | Save sidebar order: `{ "ids": [...] }` |
+| GET / POST | `/api/notes` | List, or add a note |
+| DELETE | `/api/notes/:id` | Remove a note |
+| POST | `/api/reset` | Reseed from `server/seed.json` |
+| GET | `/api/health` | `{ "ok": true }` |
+
+The app (`src/state/api.ts`) loads from the API on start and, after every edit,
+sends only what changed: new projects, edited projects, deletions, new notes.
+When no API answers (for example the static build hosted on its own), the same
+data is kept in the browser's localStorage instead. The sidebar shows which one
+is in use and whether the last change was saved, with a Reset link.
+
+What persists: new projects (templates or custom), phase changes, ticking tasks
+and subtasks, priority changes and drag and drop, renaming and deleting projects,
+and notes, tasks and links from Quick capture.
+
+`npm run seed` rewrites `server/seed.json` from `src/data/` after you change the
+sample data. Set `VITE_API_URL` to point the app at an API on another host,
+`PORT` to change the API port, `PLANAIR_DB` to move the database file.

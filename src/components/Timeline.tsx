@@ -27,7 +27,11 @@ export function Timeline({ project }: { project: Project }) {
 
       <div className="tl__rows">
         {project.bars.map((b) => {
-          const tone = BAR[b.state];
+          // Bar state follows the project's current phase, so clicking a phase
+          // in the pipeline updates the timeline too.
+          const idx = project.phases.indexOf(b.phase);
+          const state = idx < 0 ? b.state : idx < project.cur ? 'done' : idx === project.cur ? 'now' : 'later';
+          const tone = BAR[state];
           return (
             <div className="tl-grid tl-grid--rows" key={b.phase}>
               <div className="tl__phase" style={{ color: tone.label }}>

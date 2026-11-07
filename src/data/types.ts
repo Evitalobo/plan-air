@@ -8,10 +8,13 @@
 
 export type Priority = 'High' | 'Medium' | 'Low';
 
-export type ProjectKind = 'pm' | 'tufting' | 'music';
+export type ProjectKind = 'pm' | 'tufting' | 'music' | 'custom';
 
 /** Where a timeline bar sits relative to the project's current phase. */
 export type BarState = 'done' | 'now' | 'later';
+
+/** A block a project page can show; `extra:<title>` is a project-specific card. */
+export type SectionKey = 'timeline' | 'glance' | 'links' | 'todos' | 'directions' | `extra:${string}`;
 
 /** Status-chip vocabulary used by the project-specific "extras" cards. */
 export type ChipTone = 'ok' | 'warn' | 'risk' | 'neutral';
@@ -121,6 +124,11 @@ export interface Project {
   /** The to-do surfaced on the Desk card, while it is still open. */
   featuredTodoId: string;
   noteCount: number;
+  /** Custom projects list their page sections in order; built-ins use the default layout. */
+  sections?: SectionKey[];
+  /** A person-made type (kind 'custom'): its name and icon. */
+  typeLabel?: string;
+  icon?: string;
 }
 
 /** A parallel option explored inside a project that carries directions. */

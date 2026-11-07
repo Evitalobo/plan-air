@@ -15,21 +15,21 @@ export const PHASE_STYLE: Record<string, Pair> = {
   // Product design / product management
   Discovery: { bg: '#eef3f6', fg: '#3f6076' },
   Definition: { bg: '#f4f0f6', fg: '#5b4a76' },
-  Build: { bg: '#edf4ef', fg: '#2f6f4e' },
+  Build: { bg: '#f8eeee', fg: '#500000' },
   Validation: { bg: '#f6f1ea', fg: '#7a6132' },
-  Launch: { bg: '#f0f4f1', fg: '#46555d' },
+  Launch: { bg: '#f3f1f1', fg: '#46555d' },
   // Music
   Reference: { bg: '#eef3f6', fg: '#3f6076' },
   'Sound design': { bg: '#f4f0f6', fg: '#5b4a76' },
-  Composition: { bg: '#edf4ef', fg: '#2f6f4e' },
+  Composition: { bg: '#f8eeee', fg: '#500000' },
   Mix: { bg: '#f6f1ea', fg: '#7a6132' },
-  Release: { bg: '#f0f4f1', fg: '#46555d' },
+  Release: { bg: '#f3f1f1', fg: '#46555d' },
   // Craft
   Pattern: { bg: '#f4f0f6', fg: '#5b4a76' },
   Materials: { bg: '#f6f1ea', fg: '#7a6132' },
-  Tufting: { bg: '#edf4ef', fg: '#2f6f4e' },
+  Tufting: { bg: '#f8eeee', fg: '#500000' },
   Finishing: { bg: '#eef3f6', fg: '#3f6076' },
-  Photograph: { bg: '#f0f4f1', fg: '#46555d' },
+  Photograph: { bg: '#f3f1f1', fg: '#46555d' },
 };
 
 export const PHASE_FALLBACK: Pair = { bg: '#f2f1ef', fg: '#6b6558' };
@@ -39,18 +39,18 @@ export const phaseStyle = (phase: string): Pair => PHASE_STYLE[phase] ?? PHASE_F
 export const PRIO: Record<Priority, { dot: string; fg: string }> = {
   High: { dot: '#8a4a3a', fg: '#8a4a3a' },
   Medium: { dot: '#c9902f', fg: '#7a6132' },
-  Low: { dot: '#b6c0c4', fg: '#7b8a91' },
+  Low: { dot: '#b6c0c4', fg: '#5b6a72' },
 };
 
 /** Timeline bar fill / inline-note ink / phase-label ink, by state. */
 export const BAR: Record<BarState, { bg: string; ink: string; label: string }> = {
-  done: { bg: '#2f6f4e', ink: '#ffffff', label: '#46555d' },
-  now: { bg: '#93c0a6', ink: '#17352a', label: '#101a21' },
-  later: { bg: '#e7efe9', ink: '#46555d', label: '#9aa6ab' },
+  done: { bg: '#500000', ink: '#ffffff', label: '#46555d' },
+  now: { bg: '#b97a7a', ink: '#2a0000', label: '#101a21' },
+  later: { bg: '#f3e6e6', ink: '#46555d', label: '#9aa6ab' },
 };
 
 export const CHIP: Record<ChipTone, Pair> = {
-  ok: { bg: '#edf4ef', fg: '#2f6f4e' },
+  ok: { bg: '#f8eeee', fg: '#500000' },
   warn: { bg: '#f6ece4', fg: '#7a6132' },
   risk: { bg: '#f3ded8', fg: '#8a4a3a' },
   neutral: { bg: '#f1f4f5', fg: '#5b6a72' },
@@ -58,13 +58,13 @@ export const CHIP: Record<ChipTone, Pair> = {
 
 export const SEVERITY: Record<Severity, Pair> = {
   Blocker: { bg: '#f3ded8', fg: '#8a4a3a' },
-  Medium: { bg: '#f6ece4', fg: '#8a6a3a' },
+  Medium: { bg: '#f6ece4', fg: '#7a6132' },
   Low: { bg: '#eef1f3', fg: '#5b6a72' },
 };
 
 /** Mono kind tag colour inside a link pill. */
 export const LINK_KIND_FG: Record<LinkKind, string> = {
-  AHA: '#2f6f4e',
+  AHA: '#500000',
   STORY: '#3f6076',
   REF: '#3f6076',
   PRD: '#7a6132',
@@ -78,14 +78,15 @@ export const LINK_KIND_FG: Record<LinkKind, string> = {
 
 /** Sidebar dot colour and trailing type badge, by project kind. */
 export const KIND: Record<ProjectKind, { dot: string; badge: string }> = {
-  tufting: { dot: '#2f6f4e', badge: 'rug' },
+  tufting: { dot: '#500000', badge: 'rug' },
   music: { dot: '#5b4a76', badge: 'EP' },
   pm: { dot: '#c9902f', badge: 'product' },
+  custom: { dot: '#500000', badge: 'custom' },
 };
 
 /** Pipeline bar fill for a phase at `i`, given the current phase index. */
 export const pipelineBar = (i: number, cur: number): string =>
-  i < cur ? '#2f6f4e' : i === cur ? '#93c0a6' : '#e7efe9';
+  i < cur ? '#500000' : i === cur ? '#b97a7a' : '#f3e6e6';
 
 /** Pipeline label ink for a phase at `i`, given the current phase index. */
 export const pipelineLabel = (i: number, cur: number): string => (i <= cur ? '#46555d' : '#9aa6ab');

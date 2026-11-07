@@ -1,16 +1,26 @@
-import { DESK, QUESTIONS, RESUME, UP_NEXT, WEEK, WEEK_TONE } from '../data/desk';
+import { DESK, QUESTIONS, WEEK, WEEK_TONE } from '../data/desk';
 import { nextTodo } from '../state/selectors';
 import { usePlanner } from '../state/store';
-import { Checkbox } from './Checkbox';
-import { Icon } from './Icon';
+import { useState } from 'react';
+import { NewProjectDrawer, PLACEMENT } from './NewProjectDrawer';
 import { Pipeline } from './Pipeline';
 
 export function Desk() {
-  const { projects, notes, openProject, toggleTodo } = usePlanner();
-  const byId = (id: string) => projects.find((p) => p.id === id);
+  const { projects, notes, openProject, setPhase } = usePlanner();
+  const [drawer, setDrawer] = useState(false);
+
+  // Full-page placement: the flow replaces the Desk until it is done or cancelled.
+  if (drawer && PLACEMENT === 'page') {
+    return (
+      <div className="desk">
+        <NewProjectDrawer onClose={() => setDrawer(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="desk">
+      {drawer && PLACEMENT !== 'page' && <NewProjectDrawer onClose={() => setDrawer(false)} />}
       <main className="desk__main">
         <header className="page-head">
           <div className="page-head__text">
@@ -22,34 +32,15 @@ export function Desk() {
             <button type="button" className="btn btn--ghost">
               New note
             </button>
-            <button type="button" className="btn btn--primary">
+            <button type="button" className="btn btn--primary" onClick={() => setDrawer(true)} aria-haspopup="dialog">
               New project
             </button>
           </div>
         </header>
 
-        {/* Resume ------------------------------------------------- */}
-        <section className="resume">
-          <div className="resume__text">
-            <div className="eyebrow resume__eyebrow">{RESUME.eyebrow}</div>
-            <div className="resume__title">{RESUME.title}</div>
-            <div className="resume__meta">{RESUME.meta}</div>
-          </div>
-          <span className="grow" />
-          <button
-            type="button"
-            className="btn btn--dark btn--tall"
-            onClick={() => openProject(RESUME.projectId)}
-          >
-            Open project
-            <Icon name="arrow-right" size={12} />
-          </button>
-        </section>
-
         {/* Projects in motion ------------------------------------- */}
         <div className="section-head">
           <h2 className="section-head__title">Projects in motion</h2>
-          <span className="section-head__hint">stage pipeline</span>
         </div>
 
         <div className="proj-cards">
@@ -66,10 +57,10 @@ export function Desk() {
                   <span className="proj-card__name">{p.name}</span>
                   <span className="proj-card__kind">{p.deskKind}</span>
                   <span className="grow" />
-                  <span className="proj-card__meta">{p.deskMeta}</span>
+                  {p.deskMeta && <span className="proj-card__meta">{p.deskMeta}</span>}
                 </div>
 
-                <Pipeline phases={p.phases} cur={p.cur} />
+                <Pipeline phases={p.phases} cur={p.cur} onSelect={(i) => setPhase(p.id, i)} />
 
                 <div className="proj-card__foot">
                   <span className="proj-card__next-label">Next</span>
@@ -82,46 +73,6 @@ export function Desk() {
           })}
         </div>
 
-        {/* Up next ------------------------------------------------ */}
-        <div className="section-head">
-          <h2 className="section-head__title">Up next</h2>
-        </div>
-        <div className="card upnext">
-          {UP_NEXT.map((row) => {
-            const project = byId(row.projectId);
-            const todo = project?.todos.find((t) => t.id === row.todoId);
-            const done = Boolean(todo?.done);
-            return (
-              <div className="upnext__row" key={row.todoId}>
-                <Checkbox
-                  checked={done}
-                  label={`Mark "${row.label}" ${done ? 'not done' : 'done'}`}
-                  onChange={() => toggleTodo(row.projectId, row.todoId)}
-                />
-                <span
-                  className={`upnext__text${done ? ' upnext__text--done' : ''}`}
-                  onClick={() => openProject(row.projectId)}
-                >
-                  {row.label}
-                </span>
-                <span className="grow" />
-                <span className="pill">{row.project}</span>
-                <span
-                  className="upnext__due"
-                  style={{
-                    color: done
-                      ? 'var(--prio-low)'
-                      : row.urgent
-                        ? 'var(--risk-fg)'
-                        : 'var(--muted)',
-                  }}
-                >
-                  {row.due}
-                </span>
-              </div>
-            );
-          })}
-        </div>
       </main>
 
       {/* Right rail ----------------------------------------------- */}

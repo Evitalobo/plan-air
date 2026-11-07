@@ -6,3 +6,6 @@ dist-ssr
 .vite
 *.log
 tsconfig.tsbuildinfo
+dist-*
+server/data/
+scripts/.export-seed.mjs

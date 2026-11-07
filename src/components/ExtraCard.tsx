@@ -14,6 +14,7 @@ export function ExtraCard({ extra }: { extra: Extra }) {
         <span className="grow" />
         <span className="card__meta">{extra.meta}</span>
       </div>
+      {extra.items.length === 0 && <div className="extra__empty">Nothing here yet. Add the first entry.</div>}
       {extra.items.map((it) => {
         const chip = CHIP[it.tone];
         return (

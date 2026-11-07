@@ -6,19 +6,12 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
-
 body {
   margin: 0;
-  background: var(--surface);
+  background: var(--page);
   font-family: var(--font-ui);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
 }
 
 h1,
@@ -82,20 +75,56 @@ button {
   font-weight: 400;
 }
 
-/* ─────────────────────────────────────────────────────── app shell ── */
-/* The app fills the viewport. The OS window is the only frame.        */
+/* ──────────────────────────────────────────────────── app window ── */
+/* The chrome below stands in for the OS window. In a packaged desktop
+   build it is the real window and this wrapper goes away.              */
 
-.app-root {
-  height: 100%;
+.shell {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--surface);
-  overflow: hidden;
+  align-items: center;
+  gap: 18px;
+  padding: 34px 20px 60px;
 }
 
-.topbar {
-  height: 42px;
+.shell__caption {
+  width: 1440px;
   flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 0 4px;
+}
+.shell__mark {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.shell__note {
+  font-size: 12.5px;
+  color: var(--dim);
+}
+.shell__size {
+  font: 500 11px/1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dim-2);
+}
+
+.window {
+  width: 1440px;
+  flex: none;
+  background: var(--surface);
+  border: 1px solid var(--line-3);
+  border-radius: var(--r-window);
+  overflow: hidden;
+  box-shadow: var(--shadow-window);
+}
+
+.chrome {
+  height: 42px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -103,21 +132,21 @@ button {
   background: var(--surface-2);
   border-bottom: 1px solid var(--line);
 }
-.topbar__side {
-  flex: 1;
-  min-width: 0;
+.chrome__lights {
   display: flex;
-  align-items: center;
+  gap: 7px;
 }
-.topbar__side--end {
-  justify-content: flex-end;
+.chrome__lights span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #dfe5e8;
 }
-.topbar__search {
+.chrome__search {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 300px;
-  flex: none;
   height: 25px;
   padding: 0 10px;
   border-radius: 6px;
@@ -125,24 +154,17 @@ button {
   color: var(--dim-2);
   font-size: 12px;
 }
-.topbar__placeholder {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.topbar__kbd {
+.chrome__kbd {
   font: 500 10px/1 var(--font-mono);
 }
-.topbar__date {
+.chrome__date {
   font-size: 12px;
   color: var(--dim-2);
-  flex: none;
 }
 
 .app {
-  flex: 1;
-  min-height: 0;
   display: flex;
+  height: 858px;
 }
 
 .screen {
@@ -454,8 +476,7 @@ button {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  /* Bottom padding clears the floating add button. */
-  padding: 30px 30px 88px;
+  padding: 30px 30px 40px;
 }
 
 .page-head {
@@ -840,8 +861,7 @@ button {
 .project__body {
   flex: 1;
   overflow-y: auto;
-  /* Bottom padding clears the floating add button. */
-  padding: 26px 30px 88px;
+  padding: 26px 30px 44px;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -1268,7 +1288,7 @@ button {
   flex-direction: column;
   gap: 4px;
   padding-left: 12px;
-  border-left: 2px solid #dfece4;
+  border-left: 2px solid #ead4d4;
 }
 .finding__row {
   display: flex;
@@ -1454,6 +1474,423 @@ button {
   border-color: var(--accent);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────── responsive ── */
+/* The design is drawn at 1440 × 900. Below, the window fills whatever
+   space it has: the window shrinks to the viewport, the right rail and
+   side-by-side cards stack, the sidebar narrows to an icon rail, and on
+   phones it becomes a top bar with the page scrolling as one column.  */
+
+.project__headrow { display: flex; align-items: flex-end; gap: 16px; }
+.project__headtext { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.project__pipeline { padding-bottom: 18px; }
+
+.shell { padding: clamp(0px, 2.4vw, 34px) clamp(0px, 1.4vw, 20px) clamp(0px, 3vw, 60px); }
+.shell__caption,
+.window { width: 100%; max-width: 1440px; }
+.app { height: clamp(560px, calc(100dvh - 42px - 110px), 858px); }
+
+/* Short but wide screens: drop the caption so the app gets the height. */
+@media (max-height: 820px) {
+  .shell { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
+  .shell__caption { display: none; }
+  .app { height: max(520px, calc(100dvh - 42px - 26px)); }
+}
+
+/* ≤ 1240: right rail moves under the main column on Desk. */
+@media (max-width: 1240px) {
+  .desk { flex-direction: column; overflow-y: auto; }
+  .desk__main, .rail { overflow: visible; flex: none; }
+  .rail {
+    width: auto;
+    border-left: 0;
+    border-top: 1px solid #e9edef;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: start;
+    gap: 28px 24px;
+    padding: 26px 30px 40px;
+  }
+}
+
+/* ≤ 1100: project cards stack; the Window column drops out of the to-do table. */
+@media (max-width: 1100px) {
+  .row { flex-wrap: wrap; }
+  .row > * { flex: 1 1 320px; width: auto; }
+  .todo-grid { grid-template-columns: 22px minmax(0, 1fr) 120px 84px 56px; }
+  .todo-grid > :nth-child(5) { display: none; }
+  .sub { grid-template-columns: 16px minmax(0, 1fr) minmax(0, 150px) 56px; }
+}
+
+/* ≤ 960: no window chrome; sidebar becomes an icon rail. */
+@media (max-width: 960px) {
+  .shell { padding: 0; gap: 0; }
+  .shell__caption, .chrome { display: none; }
+  .window { border: 0; border-radius: 0; box-shadow: none; }
+  .app { height: 100dvh; }
+  .sidebar { width: 60px; padding: 14px 0; align-items: center; }
+  .sidebar__brand, .sidebar__label, .capture,
+  .proj-row__name, .proj-row__badge, .nav-row__count { display: none; }
+  .sidebar__group { padding: 0 8px; width: 100%; box-sizing: border-box; }
+  .nav-row { justify-content: center; padding: 0; font-size: 0; }
+  .nav-row .grow { display: none; }
+  .proj-row { justify-content: center; padding: 0; min-height: 34px; }
+  .proj-row__dot { width: 9px; height: 9px; }
+  .sidebar__label { display: block; font-size: 0; padding: 14px 0 6px; border-top: 1px solid var(--line); margin: 10px 12px 0; }
+}
+
+/* ≤ 720: phone. Sidebar is a top bar; everything is one column. */
+@media (max-width: 720px) {
+  .app { flex-direction: column; height: auto; min-height: 100dvh; }
+  .screen { overflow: visible; }
+  .sidebar {
+    width: auto; flex-direction: row; align-items: center; gap: 4px;
+    padding: 8px 10px; border-right: 0; border-bottom: 1px solid var(--line);
+    overflow-x: auto; position: sticky; top: 0; z-index: 5;
+  }
+  .sidebar > .grow, .sidebar__label { display: none; }
+  .sidebar__group { flex-direction: row; width: auto; padding: 0; gap: 2px; }
+  .nav-row { width: 36px; height: 34px; }
+  .proj-row { width: 30px; }
+
+  .desk, .project, .project__body, .desk__main { overflow: visible; }
+  .desk__main { padding: 20px 16px 28px; }
+  .rail { padding: 22px 16px 32px; grid-template-columns: 1fr; }
+  .project__head { padding: 18px 16px 0; gap: 14px; }
+  .project__body { padding: 18px 16px 32px; gap: 16px; }
+  .page-head, .project__headrow, .resume { flex-wrap: wrap; align-items: flex-start; }
+  .page-head .grow, .project__headrow > .grow, .resume > .grow { display: none; }
+  .page-head__actions { width: 100%; }
+  .page-head__title, .project__title { font-size: 25px; }
+  .row { flex-direction: column; gap: 16px; }
+  .row > * { flex: none; width: auto; }
+
+  /* Pipelines and tabs scroll sideways instead of squeezing labels. */
+  .pipeline, .tabs { overflow-x: auto; padding-bottom: 4px; }
+  .pipeline__col { min-width: 92px; }
+  .tab { flex: none; }
+  .tabs__add { display: none; }
+  .proj-card__top, .proj-card__foot, .verdict, .todo-head { flex-wrap: wrap; }
+
+  /* Timeline keeps its grid but can scroll inside the card. */
+  .timeline { overflow-x: auto; }
+  .timeline > .tl-grid, .timeline > .tl__rows { min-width: 520px; }
+
+  /* To-do rows: checkbox + text on top, chips underneath. */
+  .todo-cols { display: none; }
+  .todo__row {
+    grid-template-columns: 22px auto auto minmax(0, 1fr);
+    grid-template-areas: "box text text text" ". phase prio due";
+    gap: 6px 10px;
+    padding: 12px 16px;
+  }
+  .todo__row > :nth-child(1) { grid-area: box; }
+  .todo__row > :nth-child(2) { grid-area: text; }
+  .todo__row > :nth-child(3) { grid-area: phase; }
+  .todo__row > :nth-child(4) { grid-area: prio; }
+  .todo__row > :nth-child(6) { grid-area: due; }
+  .todo__title { white-space: normal; }
+  .subs { padding: 0 12px 12px 36px; }
+  .sub { grid-template-columns: 16px minmax(0, 1fr) 52px; }
+  .sub > :nth-child(3) { display: none; }
+  .ds__specs { flex-direction: column; }
+}
+
+.btn { white-space: nowrap; }
+@media (max-width: 960px) {
+  .project__headrow { flex-wrap: wrap; align-items: flex-start; }
+  .project__headrow > .grow { display: none; }
+}
+
+/* ────────────────────────────────── phase circles + rectangle markers ── */
+
+/* Project markers in the sidebar are small rectangles, not circles. */
+.proj-row__dot { width: 11px; height: 6px; border-radius: 2px; }
+@media (max-width: 960px) { .proj-row__dot { width: 14px; height: 8px; } }
+
+/* Each phase starts with a circle, then its bar. */
+.pipeline__col--click { cursor: pointer; border-radius: 6px; outline-offset: 3px; }
+.pipeline__col--click:hover .pipeline__bar { filter: brightness(0.94); }
+.pipeline__col--click:hover .pipeline__label { color: var(--accent) !important; }
+.pipeline__col--click:focus-visible { outline: 2px solid var(--accent); }
+.pipeline__track { display: flex; align-items: center; gap: 4px; }
+.pipeline__track .pipeline__bar { flex: 1; }
+.pipeline__node {
+  width: 10px; height: 10px; flex: none; box-sizing: border-box;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  transition: background var(--t), border-color var(--t);
+}
+.pipeline__node--done { background: var(--accent); }
+.pipeline__node--now { background: #fff; border: 2.5px solid #b97a7a; }
+.pipeline__node--later { background: #fff; border: 1.5px solid #dcc8c8; }
+.pipeline__col--click:hover .pipeline__node--later { border-color: var(--accent); }
+.pipeline__tick { font-size: 6.5px; line-height: 1; color: #fff; font-weight: 700; }
+.pipeline__foot, .pipeline__label { display: flex; }
+
+/* ───────────────────────────────────────── planAir brand pass ── */
+
+/* Wordmark: "plan" upright, "Air" in the brand face's true italic. */
+.sidebar__wordmark, .shell__mark { font-family: var(--font-brand); font-weight: 600; letter-spacing: -0.01em; }
+.sidebar__wordmark em, .shell__mark em { font-style: italic; font-weight: 600; font-family: var(--font-brand); }
+.sidebar__wordmark { font-size: 17px; }
+
+/* Buttons: primary = main red, secondary = dark red. */
+.btn--primary { background: var(--red); color: #fff; }
+.btn--primary:hover { background: var(--red-dark); }
+.btn--dark { background: var(--darkred); color: #fff; }
+.btn--dark:hover { background: var(--darkred-hover); }
+.btn--ghost { background: var(--surface); color: var(--darkred); border-color: var(--darkred); }
+.btn--ghost:hover { background: var(--darkred-wash); }
+.btn:focus-visible, .filter:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+
+/* Chips: larger text, a visible outline in the chip's own ink, every pair ≥ 4.5:1. */
+.chip, .pill, .project__badge, .drawback__sev {
+  font-size: 11.5px;
+  font-weight: 500;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 38%, transparent);
+}
+.filter {
+  height: 26px;
+  gap: 5px;
+  color: var(--muted);
+  border: 1px solid var(--chip-off-line);
+  font-weight: 500;
+}
+.filter--on { border-color: var(--accent); }
+.filter__check { font-size: 10px; font-weight: 700; }
+@media (forced-colors: active) { .chip, .pill, .filter { border: 1px solid CanvasText; } }
+
+/* All type is Gontserrat → Inter. Former mono slots keep aligned digits. */
+body { font-feature-settings: 'cv11' 1; }
+.todo__window, .sub__est, .tl__week, .link-pill__kind, .chrome__kbd { font-variant-numeric: tabular-nums; }
+
+/* Larger phase circles: the checked circle reads at a glance. */
+.pipeline__track { gap: 5px; }
+.pipeline__node { width: 16px; height: 16px; }
+.pipeline__node--now { border-width: 3px; }
+.pipeline__node--later { border-width: 2px; }
+.pipeline__tick { font-size: 10px; }
+
+/* ─────────────────────────────── icons, priority groups, drag and drop ── */
+
+/* Sidebar project icons replace the colour rectangles. */
+.proj-row__icon { width: 16px; height: 16px; flex: none; display: flex; align-items: center; justify-content: center; }
+@media (max-width: 960px) { .proj-row__icon svg { width: 17px; height: 17px; } }
+
+/* To-do table: first column holds the grip and the checkbox. */
+.todo-grid { grid-template-columns: 40px minmax(0, 1fr) 132px 88px 116px 60px; }
+@media (max-width: 1100px) { .todo-grid { grid-template-columns: 40px minmax(0, 1fr) 120px 84px 56px; } }
+@media (max-width: 720px) { .todo__row { grid-template-columns: 40px auto auto minmax(0, 1fr); } }
+.todo__lead { display: flex; align-items: center; gap: 4px; }
+.todo__grip { color: var(--prio-low); cursor: grab; display: flex; opacity: 0; transition: opacity var(--t); }
+.todo:hover .todo__grip, .todo:focus-within .todo__grip { opacity: 1; }
+.todo[draggable="true"] { cursor: default; }
+.todo--dragging { opacity: 0.4; }
+.todo__prio { background: none; border: 0; padding: 2px 4px; margin-left: -4px; border-radius: 6px; font: inherit; font-size: 11.5px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.todo__prio:hover { background: var(--hover-2); }
+.todo__prio:focus-visible { outline: 2px solid var(--darkred); outline-offset: 1px; }
+
+.prio-group { border-bottom: 1px solid var(--line-2); }
+.prio-group__head {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 18px; background: #fbfcfc; border-bottom: 1px solid var(--line-2);
+  font: 600 11px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase;
+}
+.prio-group__count { color: var(--muted); font-weight: 500; }
+.prio-group__hint { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--darkred); }
+.prio-group--dragging { outline: 1px dashed var(--accent-line); outline-offset: -1px; }
+.prio-group__empty { padding: 12px 18px 12px 58px; font-size: 12px; color: var(--muted); }
+.drop-line { height: 2px; margin: 0 18px; background: var(--darkred); border-radius: 2px; }
+.todo { border-bottom: 1px solid var(--line-2); }
+.prio-group .todo:last-of-type { border-bottom: 0; }
+
+.subs { padding-left: 70px; }
+@media (max-width: 720px) { .subs { padding-left: 46px; } }
+
+/* ─────────────────────────── selected nav, step circles, new-project drawer ── */
+
+/* Selected nav tab: solid dark red. */
+.nav-row--on, .nav-row--on:hover { background: var(--darkred); color: #fff; }
+.nav-row--on .nav-row__icon, .nav-row--on .nav-row__count { color: #fff; }
+
+/* Task steps sit on the phase bar as small circles. */
+.pipeline__bar { position: relative; }
+.pipeline__nodebtn, .pipeline__labelbtn { padding: 0; border: 0; background: none; cursor: pointer; display: flex; text-align: left; font: inherit; border-radius: 50%; }
+.pipeline__labelbtn { border-radius: 4px; }
+.pipeline__nodebtn:hover .pipeline__node--later { border-color: var(--accent); }
+.pipeline__labelbtn:hover .pipeline__label { color: var(--accent) !important; }
+.pipeline__nodebtn:focus-visible, .pipeline__labelbtn:focus-visible, .pipeline__step:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+.pipeline__step {
+  position: absolute; top: 50%; width: 10px; height: 10px; padding: 0;
+  transform: translate(-50%, -50%); border-radius: 50%; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--accent-mid); box-shadow: 0 0 0 2px #fff;
+}
+.pipeline__step--done { background: var(--darkred); border-color: var(--darkred); }
+.pipeline__step:hover { transform: translate(-50%, -50%) scale(1.25); }
+.project__pipeline .pipeline__track { padding: 4px 0; }
+
+.extra__empty { font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.tpl {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left;
+  padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface);
+  font: inherit; cursor: pointer; transition: border-color var(--t), box-shadow var(--t);
+}
+.tpl:hover { border-color: var(--darkred); box-shadow: var(--shadow-card-hover); }
+.tpl:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+.tpl__icon { width: 36px; height: 36px; border-radius: 9px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; color: var(--darkred); }
+.tpl__name { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.tpl__blurb { font-size: 12.5px; line-height: 1.45; color: var(--body); }
+.tpl__phases { font-size: 11.5px; color: var(--darkred); font-weight: 500; }
+.tpl__meta { font-size: 11.5px; color: var(--muted); }
+.tpl--custom { flex-direction: row; align-items: center; gap: 14px; margin-bottom: 22px; border-style: dashed; }
+.tpl--custom .tpl__icon { margin: 0; }
+.tpl--custom .tpl__name { min-width: 180px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.field__label { font-size: 12px; font-weight: 600; color: var(--ink); padding: 0; }
+.field__input { height: 38px; padding: 0 12px; border: 1px solid var(--checkbox-line); border-radius: 8px; font: inherit; font-size: 14px; color: var(--ink); background: #fff; min-width: 0; }
+.field__input:focus { outline: 2px solid var(--darkred); outline-offset: 0; border-color: var(--darkred); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip--neutral { background: var(--surface-4); color: var(--muted); }
+.tpl-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding: 4px 0 8px; }
+.tpl-tasks { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.7; color: var(--body); }
+
+.builder__setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; align-items: start; }
+.seg { display: flex; gap: 4px; padding: 3px; background: var(--surface-4); border-radius: 9px; width: max-content; }
+.seg__opt { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 7px; background: none; font: inherit; font-size: 12.5px; color: var(--body); cursor: pointer; }
+.seg__opt--on { background: #fff; color: var(--darkred); font-weight: 600; box-shadow: 0 1px 2px rgba(16, 26, 33, 0.12); }
+.phase-chip { display: inline-flex; align-items: center; gap: 6px; }
+.phase-chip button { border: 0; background: none; padding: 0 2px; font-size: 10px; color: inherit; cursor: pointer; }
+.phase-add { display: flex; gap: 8px; margin-top: 4px; }
+.phase-add .field__input { flex: 1; height: 34px; font-size: 13px; }
+
+.builder__lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 6px; }
+.builder__col { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface-3); min-height: 280px; }
+.builder__col--form { background: #fff; }
+.builder__col--target { border: 1.5px dashed var(--darkred); background: var(--darkred-wash); }
+.sec-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sec {
+  display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--line);
+  border-radius: 9px; background: #fff; cursor: grab;
+}
+.sec:hover { border-color: var(--card-hover-line); }
+.sec--placed { border-color: var(--accent-line); }
+.sec--dragging { opacity: 0.4; }
+.sec--drop-above { box-shadow: 0 -3px 0 0 var(--darkred); }
+.sec--fixed { cursor: default; background: var(--surface-2); border-style: dashed; }
+.sec__grip { color: var(--prio-low); display: flex; }
+.sec__text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.sec__name { font-size: 13px; font-weight: 500; }
+.sec__hint { font-size: 11.5px; color: var(--muted); }
+.sec__btn { width: 28px; height: 28px; flex: none; border: 1px solid var(--line-3); border-radius: 7px; background: #fff; font: inherit; font-size: 13px; color: var(--darkred); cursor: pointer; }
+.sec__btn:hover { background: var(--darkred-wash); }
+.sec__btn:disabled { opacity: 0.35; cursor: default; }
+.sec-empty { padding: 18px; text-align: center; font-size: 12.5px; color: var(--muted); border: 1px dashed var(--line-3); border-radius: 9px; list-style: none; }
+.drop-slot { height: 3px; border-radius: 3px; background: var(--darkred); list-style: none; }
+@media (max-width: 720px) {
+  .np__head, .np__body { padding-left: 16px; padding-right: 16px; }
+  .tpl--custom { flex-direction: column; align-items: flex-start; }
+}
+
+/* ───────────────────────── new-project flow: four placements ── */
+
+.np { position: fixed; inset: 0; z-index: 50; display: flex; }
+.np__backdrop { position: absolute; inset: 0; background: rgba(16, 26, 33, 0.32); animation: fade-in 160ms ease; }
+.np__panel {
+  position: relative; background: var(--surface); display: flex; flex-direction: column;
+  overflow: hidden; outline: none; box-shadow: 0 -12px 40px -12px rgba(16, 26, 33, 0.35);
+}
+/* Header stays put; only the content scrolls. */
+.np__head { flex: none; display: flex; align-items: flex-start; gap: 12px; padding: 14px 28px; border-bottom: 1px solid var(--line-2); background: var(--surface); }
+.np__titles { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.np__title { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.np__back {
+  display: inline-flex; align-items: center; gap: 6px; margin-left: -8px; padding: 4px 8px; min-height: 30px;
+  border: 0; border-radius: 6px; background: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--darkred); cursor: pointer;
+}
+.np__back:hover { background: var(--darkred-wash); }
+.np__close {
+  width: 36px; height: 36px; flex: none; display: flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 8px; background: none; color: var(--darkred); cursor: pointer;
+}
+.np__close:hover { background: var(--darkred-wash); }
+.np__back:focus-visible, .np__close:focus-visible, .icon-btn:focus-visible, .type-opt:focus-visible, .phase-chip__name:focus-visible, .icon-pick__opt:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+.np__scroll { flex: 1; min-height: 0; overflow: auto; }
+.np__body { padding: 20px 28px 0; display: flex; flex-direction: column; gap: 14px; }
+.np__label { margin-top: 4px; }
+.np__foot { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 14px 0 20px; margin-top: 6px; background: var(--surface); border-top: 1px solid var(--line-2); }
+.np__note { margin-right: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.np .btn { height: 36px; padding: 0 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.np__grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line-3); margin: 10px auto 0; flex: none; }
+
+/* Drawer: a sheet from the bottom. */
+.np--drawer { align-items: flex-end; justify-content: center; }
+.np--drawer .np__panel { width: min(1100px, 100%); height: min(86vh, 760px); border-radius: 16px 16px 0 0; animation: slide-up 220ms cubic-bezier(.2, .8, .2, 1); }
+/* Modal: centred over the app. */
+.np--modal { align-items: center; justify-content: center; padding: 24px; }
+.np--modal .np__panel { width: min(980px, 100%); height: min(84vh, 760px); border-radius: 14px; box-shadow: 0 24px 60px -18px rgba(16, 26, 33, 0.45); animation: pop-in 180ms cubic-bezier(.2, .8, .2, 1); }
+/* Side panel: full height on the right, the Desk still visible beside it. */
+.np--side { justify-content: flex-end; }
+.np--side .np__panel { width: min(720px, 100%); height: 100%; box-shadow: -16px 0 40px -16px rgba(16, 26, 33, 0.4); animation: slide-left 220ms cubic-bezier(.2, .8, .2, 1); }
+.np--side .builder__lists, .np--side .builder__setup { grid-template-columns: 1fr; }
+/* Page: replaces the Desk inside the app window. */
+.np--page { position: static; flex: 1; min-width: 0; display: flex; }
+.np--page .np__panel { flex: 1; box-shadow: none; }
+.np--page .np__head { padding: 26px 30px 16px; }
+.np--page .np__title { font-size: 30px; font-weight: 500; letter-spacing: -0.02em; }
+.np--page .np__body { padding: 22px 30px 0; }
+@keyframes pop-in { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes slide-left { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .np__panel, .np__backdrop { animation: none !important; } }
+@media (max-width: 720px) {
+  .np--modal { padding: 0; }
+  .np--modal .np__panel { height: 100%; border-radius: 0; }
+}
+
+/* Larger, centred icon buttons. */
+.icon-btn {
+  width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  border: 1px solid var(--line-3); border-radius: 8px; background: #fff; color: var(--darkred); cursor: pointer;
+}
+.icon-btn:hover { background: var(--darkred-wash); }
+.icon-btn:disabled { opacity: 0.35; cursor: default; background: #fff; }
+.icon-btn--sm { width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; color: inherit; }
+.sec__grip, .phase-chip__grip { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; color: #9aa6ab; }
+.tpl__icon svg, .np__close svg { display: block; }
+
+/* Types: built-ins plus your own. */
+.type-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.type-opt {
+  display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px;
+  border: 1px solid var(--line-3); border-radius: 8px; background: #fff; font: inherit; font-size: 12.5px; color: var(--body); cursor: pointer;
+}
+.type-opt--on { border-color: var(--darkred); background: var(--darkred-wash); color: var(--darkred); font-weight: 600; }
+.type-opt--add { border-style: dashed; color: var(--darkred); }
+.type-new { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-3); }
+.icon-pick { display: flex; gap: 6px; }
+.icon-pick__opt { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-3); border-radius: 8px; background: #fff; color: var(--body); cursor: pointer; }
+.icon-pick__opt--on { border-color: var(--darkred); background: var(--darkred-wash); color: var(--darkred); }
+.type-new__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.type-new__actions .btn { height: 32px; }
+
+/* Phases: draggable, numbered chips. */
+.phase-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.phase-chip {
+  display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 4px 0 2px;
+  border: 1px solid var(--checkbox-line); border-radius: 8px; background: #fff; color: var(--body); cursor: grab; font-size: 12.5px;
+}
+.phase-chip--dragging { opacity: 0.4; }
+.phase-chip--drop { box-shadow: -3px 0 0 0 var(--darkred); }
+.phase-chip__n { min-width: 18px; height: 18px; border-radius: 9px; background: var(--darkred-wash); color: var(--darkred); font-size: 10.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+.phase-chip__name { border: 0; background: none; padding: 0 4px; font: inherit; font-weight: 500; color: var(--ink); cursor: grab; border-radius: 4px; }
+.phase-drop-end { width: 3px; height: 28px; border-radius: 3px; background: var(--darkred); }
 /* ───────────────────────────────────────────────── add drawer ── */
 
 .fab {
@@ -1464,7 +1901,7 @@ button {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--red);
   color: #fff;
   display: flex;
   align-items: center;
@@ -1475,7 +1912,7 @@ button {
     transform var(--t);
 }
 .fab:hover {
-  background: var(--accent-dark);
+  background: var(--red-dark);
   transform: translateY(-1px);
 }
 
@@ -1533,20 +1970,20 @@ button {
   gap: 12px;
 }
 
-.field {
+.drawer .field {
   display: flex;
   flex-direction: column;
   gap: 5px;
   min-width: 0;
 }
-.field__label {
+.drawer .field__label {
   font: 500 10px/1 var(--font-ui);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--faint);
 }
-.field__input,
-.field__area {
+.drawer .field__input,
+.drawer .field__area {
   font: 400 12.5px/1.4 var(--font-ui);
   color: var(--ink);
   background: var(--surface);
@@ -1556,31 +1993,31 @@ button {
   width: 100%;
   transition: border-color var(--t);
 }
-select.field__input {
+.drawer select.field__input {
   height: 31px;
   padding: 0 8px;
   cursor: pointer;
 }
-.field__area {
+.drawer .field__area {
   resize: vertical;
   font-family: var(--font-read);
   font-size: 13px;
   line-height: 1.5;
 }
-.field__input:focus,
-.field__area:focus {
+.drawer .field__input:focus,
+.drawer .field__area:focus {
   outline: none;
   border-color: var(--accent);
 }
-.field__input::placeholder,
-.field__area::placeholder {
+.drawer .field__input::placeholder,
+.drawer .field__area::placeholder {
   color: var(--dim-2);
 }
-.field__row {
+.drawer .field__row {
   display: flex;
   gap: 10px;
 }
-.field__row .field {
+.drawer .field__row .field {
   flex: 1;
 }
 
@@ -1603,120 +2040,33 @@ select.field__input {
 
 /* ──────────────────────────────────────────────── responsive ── */
 /* Desktop only, roughly 960px and up. Things give way in this order:
-   the rail narrows, side-by-side cards stack, the Window column drops,
-   the rail moves under the main column, the sidebar becomes icons.     */
 
-@media (max-width: 1400px) {
-  .rail {
-    width: 292px;
-    padding: 30px 20px 40px;
-  }
-  .desk__main,
-  .project__body {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-  .rail {
-    padding-bottom: 88px;
-  }
-  .project__head {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-}
+/* Quick-add drawer: larger touch targets in the planAir pass. */
+.drawer__close { width: 32px; height: 32px; font-size: 14px; color: var(--darkred); border: 0; background: none; cursor: pointer; }
+.drawer .field__label { color: var(--muted); font-weight: 600; }
+.drawer .field__input:focus, .drawer .field__area:focus { border-color: var(--darkred); outline: 2px solid var(--darkred); outline-offset: 0; }
+.drawer__confirm { color: var(--darkred); }
+.fab { border: 0; cursor: pointer; }
+.fab:focus-visible { outline: 2px solid var(--darkred); outline-offset: 3px; }
 
-@media (max-width: 1240px) {
-  /* The time window is the least load-bearing column — it goes first. */
-  .todo-grid {
-    grid-template-columns: 22px minmax(0, 1fr) 124px 84px 58px;
-  }
-  .col-window,
-  .todo__window {
-    display: none;
-  }
-  .sub {
-    grid-template-columns: 16px minmax(0, 1fr) 140px 54px;
-  }
-}
+/* Quick capture is a real button now. */
+button.capture { font: inherit; text-align: left; background: none; cursor: pointer; width: calc(100% - 24px); }
 
-@media (max-width: 1180px) {
-  /* Side-by-side cards stack rather than squeeze. */
-  .row {
-    flex-direction: column;
-  }
-  .glance,
-  .status-card {
-    width: auto;
-  }
-}
+/* Save status in the sidebar. */
+.sync { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 16px 0; font-size: 11px; color: var(--muted); }
+.sync__dot { width: 7px; height: 7px; border-radius: 50%; background: #6a8f6a; flex: none; }
+.sync--saving .sync__dot, .sync--loading .sync__dot { background: var(--prio-med); }
+.sync--error .sync__dot { background: var(--red); }
+.sync--error .sync__text { color: var(--red); font-weight: 600; }
+.sync__reset, .sync__confirm button { border: 0; background: none; padding: 2px 4px; font: inherit; color: var(--darkred); text-decoration: underline; cursor: pointer; }
+.sync__confirm { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); }
+@media (max-width: 960px) { .sync__text, .sync__reset, .sync__confirm { display: none; } .sync { justify-content: center; margin: 10px 0 0; } }
 
-@media (max-width: 1080px) {
-  /* The rail moves under the main column and lays its blocks out in a row. */
-  .desk {
-    flex-direction: column;
-    overflow-y: auto;
-  }
-  .desk__main {
-    overflow: visible;
-    flex: none;
-  }
-  .rail {
-    width: auto;
-    flex: none;
-    overflow: visible;
-    border-left: 0;
-    border-top: 1px solid #e9edef;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-    align-items: start;
-    padding: 26px 24px 40px;
-  }
-}
-
-@media (max-width: 960px) {
-  /* Sidebar collapses to an icon rail. */
-  .sidebar {
-    width: 58px;
-  }
-  .sidebar__brand,
-  .sidebar__label,
-  .nav-row__label,
-  .nav-row__count,
-  .proj-row__name,
-  .proj-row__badge,
-  .capture__sub,
-  .capture__title-text {
-    display: none;
-  }
-  .nav-row,
-  .proj-row {
-    justify-content: center;
-    padding: 0;
-  }
-  .capture {
-    margin: 0 9px;
-    padding: 9px 0;
-    align-items: center;
-  }
-  .capture__title {
-    justify-content: center;
-  }
-  /* The colour dot is all that's left of a project row — give it presence. */
-  .proj-row__dot {
-    width: 8px;
-    height: 8px;
-  }
-  .rail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .topbar__search {
-    width: 220px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-}
+/* Rename and delete on the project page. */
+.project__rename { border: 0; background: none; padding: 0 4px; margin: 0 -4px; font: inherit; color: inherit; letter-spacing: inherit; cursor: text; border-radius: 6px; text-align: left; }
+.project__rename:hover { background: var(--hover-2); }
+.project__rename:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+.project__title-input { font: 500 30px/1.1 var(--font-ui); letter-spacing: -0.02em; color: var(--ink); border: 1px solid var(--darkred); border-radius: 8px; padding: 2px 8px; min-width: 0; width: min(520px, 100%); outline: none; }
+.btn--quiet { background: none; border: 0; color: var(--muted); }
+.btn--quiet:hover { color: var(--red); background: var(--darkred-wash); }
+.confirm-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); }

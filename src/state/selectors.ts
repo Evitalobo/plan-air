@@ -41,9 +41,10 @@ export function todoMeta(project: Project): string {
  * checkbox updates them; everything else is authored.
  */
 export function facts(project: Project): Fact[] {
+  const n = project.phases.length;
   const phase = project.phases[project.cur];
   return [
-    { k: 'Phase', v: `${phase} · ${project.cur + 1} of ${project.phases.length}` },
+    { k: 'Phase', v: phase ? `${phase} · ${project.cur + 1} of ${n}` : `Complete · ${n} of ${n}` },
     { k: 'Open to-dos', v: `${openCount(project)} of ${project.todos.length}` },
     ...project.facts,
   ];

@@ -3,9 +3,9 @@
 
 :root {
   /* Type */
-  --font-ui: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-read: Newsreader, Georgia, serif;
-  --font-mono: ui-monospace, Menlo, monospace;
+  --font-ui: Gontserrat, Inter, system-ui, sans-serif;
+  --font-read: Gontserrat, Inter, system-ui, sans-serif;
+  --font-mono: Gontserrat, Inter, system-ui, sans-serif; /* was mono: tabular figures keep columns aligned */
 
   /* Ink */
   --ink: #101a21;
@@ -17,12 +17,12 @@
   --faint: #9aa6ab;
 
   /* Accent */
-  --accent: #2f6f4e;
-  --accent-dark: #245a3f;
-  --accent-mid: #93c0a6;
-  --accent-wash: #edf4ef;
-  --accent-line: #d9e8de;
-  --accent-ink: #17352a;
+  --accent: #500000;
+  --accent-dark: #3d0000;
+  --accent-mid: #b97a7a;
+  --accent-wash: #f8eeee;
+  --accent-line: #ead4d4;
+  --accent-ink: #2a0000;
 
   /* Surfaces */
   --surface: #ffffff;
@@ -40,8 +40,8 @@
   /* States */
   --hover: #f8fafb;
   --hover-2: #eceff1;
-  --selected: #e7efe9;
-  --card-hover-line: #c9d8de;
+  --selected: #f3e6e6;
+  --card-hover-line: #d9c4c4;
 
   /* Semantic */
   --warn-fg: #7a6132;
@@ -55,7 +55,7 @@
   /* Project kinds */
   --kind-music: #5b4a76;
   --kind-product: #c9902f;
-  --kind-craft: #2f6f4e;
+  --kind-craft: #500000;
 
   /* Warm card */
   --warm-card-bg: #fbf7f5;
@@ -65,6 +65,15 @@
 
   /* Question mark glyph */
   --query: #b0723f;
+
+  /* Brand: planAir red buttons + wordmark face */
+  --font-brand: Gontserrat, Inter, system-ui, sans-serif;
+  --red: #b3261e;        /* primary buttons, 6.5:1 with white text */
+  --red-dark: #8f1e18;   /* primary hover */
+  --darkred: #500000;    /* secondary buttons */
+  --darkred-hover: #6e0b0b;
+  --darkred-wash: #f8f1f1;
+  --chip-off-line: #c9d2d6;
 
   /* Radii */
   --r-check: 4px;

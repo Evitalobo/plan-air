@@ -1,19 +1,64 @@
 import { LINK_KIND_FG, PRIO, phaseStyle } from '../data/theme';
-import type { Project, Todo, TodoFilter } from '../data/types';
+import { useRef, useState, type DragEvent } from 'react';
+import type { Priority, Project, Todo, TodoFilter } from '../data/types';
 import { filterTodos, todoMeta } from '../state/selectors';
 import { usePlanner } from '../state/store';
 import { Checkbox } from './Checkbox';
 import { Icon } from './Icon';
 
-const FILTERS: TodoFilter[] = ['All', 'Open', 'High first'];
+const FILTERS: TodoFilter[] = ['All', 'Open'];
+const PRIOS: Priority[] = ['High', 'Medium', 'Low'];
+const NEXT_PRIO: Record<Priority, Priority> = { High: 'Medium', Medium: 'Low', Low: 'High' };
+
+/** Where a dragged task would land: a priority group, before a task or at its end. */
+interface DropTarget { prio: Priority; beforeId: string | null }
 
 /** Links row, to-do header, column headers, task rows and subtasks — one card. */
-export function WorkCard({ project }: { project: Project }) {
-  const { filter, setFilter } = usePlanner();
+export function WorkCard({ project, links = true, todos = true }: { project: Project; links?: boolean; todos?: boolean }) {
+  const { filter, setFilter, moveTodo } = usePlanner();
   const list = filterTodos(project.todos, filter);
+  const [dragId, setDragIdState] = useState<string | null>(null);
+  const [drop, setDropState] = useState<DropTarget | null>(null);
+  // Refs mirror the state so a drop that lands before React re-renders still
+  // knows what is being dragged and where it would go.
+  const dragRef = useRef<string | null>(null);
+  const dropRef = useRef<DropTarget | null>(null);
+  const setDragId = (id: string | null) => { dragRef.current = id; setDragIdState(id); };
+  const setDrop = (d: DropTarget | null) => { dropRef.current = d; setDropState(d); };
+
+  const endDrag = () => {
+    setDragId(null);
+    setDrop(null);
+  };
+  const commit = (e: DragEvent, fallbackPrio: Priority) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = dragRef.current ?? e.dataTransfer.getData('text/plain');
+    const target = dropRef.current ?? { prio: fallbackPrio, beforeId: null };
+    if (id) moveTodo(project.id, id, target.prio, target.beforeId);
+    endDrag();
+  };
+  /** Over a row: drop above it, or below it (before the next row in the group). */
+  const overRow = (e: DragEvent<HTMLDivElement>, prio: Priority, group: Todo[], i: number) => {
+    if (!dragRef.current) return;
+    e.preventDefault();
+    e.stopPropagation(); // keep the group from resetting the position to "end"
+    const r = e.currentTarget.getBoundingClientRect();
+    const below = e.clientY > r.top + r.height / 2;
+    const beforeId = below ? (group[i + 1]?.id ?? null) : group[i].id;
+    const d = dropRef.current;
+    if (d?.prio !== prio || d?.beforeId !== beforeId) setDrop({ prio, beforeId });
+  };
+  const overGroup = (e: DragEvent, prio: Priority) => {
+    if (!dragRef.current) return;
+    e.preventDefault();
+    const d = dropRef.current;
+    if (d?.prio !== prio || d?.beforeId !== null) setDrop({ prio, beforeId: null });
+  };
 
   return (
     <section className="card work">
+      {links && (
       <div className="links">
         <div className="eyebrow links__label">Links</div>
         {project.links.map((l) => (
@@ -36,6 +81,9 @@ export function WorkCard({ project }: { project: Project }) {
         <span className="grow" />
         <span className="links__meta">{project.linkMeta}</span>
       </div>
+      )}
+      {todos && (
+      <>
 
       <div className="todo-head">
         <h2 className="card__title">To do</h2>
@@ -49,6 +97,7 @@ export function WorkCard({ project }: { project: Project }) {
             aria-pressed={filter === f}
             onClick={() => setFilter(f)}
           >
+            {filter === f && <span className="filter__check" aria-hidden="true">✓</span>}
             {f}
           </button>
         ))}
@@ -57,26 +106,73 @@ export function WorkCard({ project }: { project: Project }) {
       <div className="todo-grid todo-cols">
         <span />
         <span>Task</span>
-        <span className="col-phase">Phase</span>
-        <span className="col-prio">Priority</span>
-        <span className="col-window">Window</span>
-        <span className="col-due">Due</span>
+        <span>Phase</span>
+        <span>Priority</span>
+        <span>Window</span>
+        <span>Due</span>
       </div>
 
-      {list.map((t) => (
-        <TodoRow key={t.id} projectId={project.id} todo={t} />
-      ))}
+      {PRIOS.map((prio) => {
+        const group = list.filter((t) => t.prio === prio);
+        const tone = PRIO[prio];
+        const endHere = drop?.prio === prio && drop.beforeId === null;
+        return (
+          <div
+            key={prio}
+            className={`prio-group${dragId ? ' prio-group--dragging' : ''}`}
+            onDragOver={(e) => overGroup(e, prio)}
+            onDrop={(e) => commit(e, prio)}
+          >
+            <div className="prio-group__head">
+              <span className="todo__prio-dot" style={{ background: tone.dot }} />
+              <span style={{ color: tone.fg }}>{prio}</span>
+              <span className="prio-group__count">{group.length}</span>
+              {dragId && <span className="prio-group__hint">Drop here to make it {prio}</span>}
+            </div>
+            {group.map((t, i) => (
+              <TodoRow
+                key={t.id}
+                projectId={project.id}
+                todo={t}
+                dragging={dragId === t.id}
+                dropAbove={drop?.prio === prio && drop.beforeId === t.id}
+                onDragStart={(e) => {
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', t.id);
+                  setDragId(t.id);
+                }}
+                onDragEnd={endDrag}
+                onDragOver={(e) => overRow(e, prio, group, i)}
+              />
+            ))}
+            {group.length === 0 && <div className="prio-group__empty">No {prio.toLowerCase()} tasks</div>}
+            {endHere && <div className="drop-line" />}
+          </div>
+        );
+      })}
 
       <button type="button" className="add-row work__add">
         <Icon name="plus" size={11} />
         Add a task
       </button>
+      </>
+      )}
     </section>
   );
 }
 
-function TodoRow({ projectId, todo }: { projectId: string; todo: Todo }) {
-  const { toggleTodo, toggleSubtask } = usePlanner();
+interface RowProps {
+  projectId: string;
+  todo: Todo;
+  dragging: boolean;
+  dropAbove: boolean;
+  onDragStart: (e: DragEvent<HTMLDivElement>) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: DragEvent<HTMLDivElement>) => void;
+}
+
+function TodoRow({ projectId, todo, dragging, dropAbove, onDragStart, onDragEnd, onDragOver }: RowProps) {
+  const { toggleTodo, toggleSubtask, moveTodo } = usePlanner();
   const phase = phaseStyle(todo.phase);
   const prio = PRIO[todo.prio];
   const dueColor = todo.done
@@ -86,13 +182,25 @@ function TodoRow({ projectId, todo }: { projectId: string; todo: Todo }) {
       : 'var(--dim)';
 
   return (
-    <div className="todo">
+    <div
+      className={`todo${dragging ? ' todo--dragging' : ''}`}
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+    >
+      {dropAbove && <div className="drop-line" />}
       <div className="todo-grid todo__row">
-        <Checkbox
+        <span className="todo__lead">
+          <span className="todo__grip" title="Drag to another priority" aria-hidden="true">
+            <Icon name="grip" size={12} />
+          </span>
+          <Checkbox
           checked={Boolean(todo.done)}
           label={`Mark "${todo.text}" ${todo.done ? 'not done' : 'done'}`}
           onChange={() => toggleTodo(projectId, todo.id)}
-        />
+          />
+        </span>
         <div className="todo__text">
           <span
             className={`todo__title${todo.done ? ' todo__title--done' : ''}`}
@@ -108,10 +216,17 @@ function TodoRow({ projectId, todo }: { projectId: string; todo: Todo }) {
         >
           {todo.phase}
         </span>
-        <span className="todo__prio" style={{ color: prio.fg }}>
+        <button
+          type="button"
+          className="todo__prio"
+          style={{ color: prio.fg }}
+          title={`Priority ${todo.prio}. Click to change, or drag the row to another group.`}
+          aria-label={`Priority ${todo.prio}, change to ${NEXT_PRIO[todo.prio]}`}
+          onClick={() => moveTodo(projectId, todo.id, NEXT_PRIO[todo.prio], null)}
+        >
           <span className="todo__prio-dot" style={{ background: prio.dot }} />
           {todo.prio}
-        </span>
+        </button>
         <span className="todo__window">{todo.window}</span>
         <span className="todo__due" style={{ color: dueColor }}>
           {todo.due}
