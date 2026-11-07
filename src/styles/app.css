@@ -2192,3 +2192,26 @@ body { background: var(--surface); }
   .tl-grid { min-width: 480px; }
   .timeline { overflow-x: auto; }
 }
+
+/* Notes column: minimize to a slim strip, expand on demand. */
+.rail__min {
+  align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; margin: -14px -8px -10px 0;
+  padding: 6px 10px; border: 0; border-radius: 7px; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--darkred); cursor: pointer;
+}
+.rail__min:hover { background: var(--darkred-wash); }
+.rail--min { width: 56px; padding: 18px 8px; align-items: center; overflow: hidden; }
+.rail__expand {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; width: 40px; padding: 12px 0;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--darkred); font: inherit; cursor: pointer;
+}
+.rail__expand:hover { border-color: var(--darkred); background: var(--darkred-wash); }
+.rail__min:focus-visible, .rail__expand:focus-visible { outline: 2px solid var(--darkred); outline-offset: 2px; }
+.rail__expand-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; }
+.rail__expand-count { min-width: 20px; height: 20px; border-radius: 10px; background: var(--darkred); color: #fff; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+/* When the column sits under the Desk (narrow windows), the strip becomes a bar. */
+@media (max-width: 1240px) {
+  .rail--min { width: auto; max-width: none; padding: 12px 30px; display: flex; }
+  .rail__expand { flex-direction: row; width: auto; padding: 8px 14px; }
+  .rail__expand-label { writing-mode: horizontal-tb; transform: none; }
+  .rail__min { margin: 0; }
+}
