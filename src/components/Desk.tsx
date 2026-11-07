@@ -1,14 +1,13 @@
 import { DESK, QUESTIONS, WEEK, WEEK_TONE } from '../data/desk';
-import { nextTodo } from '../state/selectors';
 import { usePlanner } from '../state/store';
 import { useEffect, useRef, useState } from 'react';
 import { NewProjectDrawer, PLACEMENT } from './NewProjectDrawer';
 import { Icon } from './Icon';
-import { Pipeline } from './Pipeline';
+import { ProjectCard } from './ProjectCard';
 
 export function Desk() {
-  const { projects, notes, openProject, setPhase, lastAddedId } = usePlanner();
-  const newCard = useRef<HTMLButtonElement>(null);
+  const { projects, notes, lastAddedId } = usePlanner();
+  const newCard = useRef<HTMLDivElement>(null);
   useEffect(() => {
     newCard.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [lastAddedId]);
@@ -46,7 +45,6 @@ export function Desk() {
         <header className="page-head">
           <div className="page-head__text">
             <h1 className="page-head__title">{DESK.title}</h1>
-            <div className="page-head__sub">{DESK.sub}</div>
           </div>
           <span className="grow" />
           <div className="page-head__actions">
@@ -65,35 +63,14 @@ export function Desk() {
         </div>
 
         <div className="proj-cards">
-          {projects.map((p) => {
-            const next = nextTodo(p);
-            return (
-              <button
-                type="button"
-                key={p.id}
-                className={`card proj-card${p.id === lastAddedId ? ' proj-card--new' : ''}`}
-                ref={p.id === lastAddedId ? newCard : undefined}
-                onClick={() => openProject(p.id)}
-              >
-                <div className="proj-card__top">
-                  <span className="proj-card__name">{p.name}</span>
-                  {p.id === lastAddedId && <span className="proj-card__new">New</span>}
-                  <span className="proj-card__kind">{p.deskKind}</span>
-                  <span className="grow" />
-                  {p.deskMeta && <span className="proj-card__meta">{p.deskMeta}</span>}
-                </div>
-
-                <Pipeline phases={p.phases} cur={p.cur} onSelect={(i) => setPhase(p.id, i)} />
-
-                <div className="proj-card__foot">
-                  <span className="proj-card__next-label">Next</span>
-                  <span className="proj-card__next">{next ? next.text : 'Nothing open'}</span>
-                  <span className="grow" />
-                  <span className="proj-card__notes">{p.noteCount} notes</span>
-                </div>
-              </button>
-            );
-          })}
+          {projects.map((p) => (
+            <ProjectCard
+              key={p.id}
+              project={p}
+              isNew={p.id === lastAddedId}
+              cardRef={p.id === lastAddedId ? newCard : undefined}
+            />
+          ))}
         </div>
 
       </main>
