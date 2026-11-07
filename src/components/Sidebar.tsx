@@ -9,7 +9,7 @@ const KIND_ICON: Record<string, IconName> = { pm: 'laptop', music: 'music', tuft
 const NAV: { key: string; label: string; icon: IconName }[] = [
   { key: 'desk', label: 'Desk', icon: 'desk' },
   { key: 'projects', label: 'Projects', icon: 'projects' },
-  // Notes is hidden for now: notes live in the Desk's right rail and Quick capture.
+  { key: 'notes', label: 'Notes', icon: 'notes' },
   { key: 'decisions', label: 'Decisions', icon: 'decisions' },
 ];
 
