@@ -169,12 +169,16 @@ sample data. Set `VITE_API_URL` to point the app at an API on another host,
 
 ## Live prototype
 
-GitHub Pages (built by `.github/workflows/pages.yml` on every push to `main` or `placement/drawer`):
+GitHub Pages, built from `main` by `.github/workflows/pages.yml` on every push:
 
-- https://evitalobo.github.io/plan-air/ (drawer)
+- https://evitalobo.github.io/plan-air/ (main: new project opens as a page)
+- https://evitalobo.github.io/plan-air/drawer/
 - https://evitalobo.github.io/plan-air/modal/
 - https://evitalobo.github.io/plan-air/side/
 - https://evitalobo.github.io/plan-air/page/
+
+Branches: `main` uses the page placement; `placement/drawer`, `placement/modal`
+and `placement/side` keep the alternatives (each differs only in `.env`).
 
 The hosted site has no API server, so each visitor's changes are saved in their own browser.
 Run `npm run dev` locally for the version backed by the SQLite API.

@@ -1,15 +1,16 @@
-# Builds the prototype and publishes it to the gh-pages branch, which GitHub
-# Pages serves (Settings → Pages → Deploy from a branch → gh-pages / root):
-#   /         drawer placement
-#   /modal/   modal placement
-#   /side/    side-panel placement
-#   /page/    full-page placement
+# Builds the prototype from main and publishes it to the gh-pages branch, which
+# GitHub Pages serves (Settings → Pages → Deploy from a branch → gh-pages / root):
+#   /          main's own placement (VITE_NP_VARIANT in .env)
+#   /drawer/   drawer placement
+#   /modal/    modal placement
+#   /side/     side-panel placement
+#   /page/     full-page placement
 # The hosted site has no API server, so it saves changes in each visitor's browser.
 name: Publish to GitHub Pages
 
 on:
   push:
-    branches: [main, placement/drawer]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -30,10 +31,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
-      - name: Build all four placements
+      - name: Build main's placement plus all four
         run: |
-          VITE_NP_VARIANT=drawer npx vite build --outDir site
-          for v in modal side page; do
+          npx vite build --outDir site
+          for v in drawer modal side page; do
             VITE_NP_VARIANT=$v npx vite build --outDir site/$v
           done
           touch site/.nojekyll
