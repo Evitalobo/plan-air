@@ -116,6 +116,15 @@ briefs, research bodies, verdicts, questions and the two screen titles:
 **Newsreader**. Both load from Google Fonts in `index.html`; self-host them for
 an offline desktop build.
 
+## Custom projects
+
+"Create a custom form" is two steps: set up (name, type or a new type, phases you
+can drag into order, and the sections to include), then **Arrange the page**,
+where empty placeholders of each section sit on the project page's 6-column grid.
+Drag blocks to move them and pick a width (⅓, ½, ⅔, full) to place them side by
+side. Save adds the project to the Desk, where it is highlighted as New, and its
+page uses exactly that layout.
+
 ## New-project placements
 
 "New project" opens a flow with three templates (Work, Music, Sewing) or a custom

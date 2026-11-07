@@ -1,4 +1,4 @@
-import type { Extra, Project, ProjectKind, SectionKey, Todo } from './types';
+import type { Extra, LayoutItem, Project, ProjectKind, SectionKey, Todo } from './types';
 
 /**
  * New-project templates and the section library the custom form builder draws
@@ -28,6 +28,12 @@ export const SECTION_LIBRARY: SectionDef[] = [
 ];
 
 export const sectionDef = (key: SectionKey) => SECTION_LIBRARY.find((s) => s.key === key);
+
+/** Starting width for each section, matching the built-in project pages. */
+export const defaultSpan = (key: SectionKey): LayoutItem['span'] =>
+  key === 'timeline' ? 4 : key === 'glance' ? 2 : key.startsWith('extra:') ? 3 : 6;
+
+export const defaultLayout = (keys: SectionKey[]): LayoutItem[] => keys.map((key) => ({ key, span: defaultSpan(key) }));
 
 export interface Template {
   id: string;
@@ -109,6 +115,7 @@ export function makeProject(opts: {
   todos: Omit<Todo, 'id'>[];
   typeLabel?: string;
   icon?: string;
+  layout?: LayoutItem[];
 }): Project {
   const deskKind = opts.typeLabel ? opts.typeLabel.toLowerCase() : DESK_KIND[opts.kind];
   const id = `p-${Date.now().toString(36)}`;
@@ -151,6 +158,7 @@ export function makeProject(opts: {
     featuredTodoId: todos[0]?.id ?? '',
     noteCount: 0,
     sections: opts.sections,
+    layout: opts.layout ?? defaultLayout(opts.sections),
     typeLabel: opts.typeLabel,
     icon: opts.icon,
   };
