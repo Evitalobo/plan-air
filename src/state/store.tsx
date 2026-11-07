@@ -61,6 +61,8 @@ interface PlannerApi extends PlannerState {
    *  (or at the end of that priority group when null). */
   moveTodo: (projectId: string, todoId: string, prio: Priority, beforeId: string | null) => void;
   addProject: (project: Project) => void;
+  /** The project most recently created, so the Desk can point it out. */
+  lastAddedId: string | null;
   renameProject: (projectId: string, name: string) => void;
   deleteProject: (projectId: string) => void;
   addNote: (note: NewNote) => void;
@@ -219,7 +221,11 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const addProject = useCallback((p: Project) => setProjects((prev) => [...prev, p]), []);
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+  const addProject = useCallback((p: Project) => {
+    setProjects((prev) => [...prev, p]);
+    setLastAddedId(p.id);
+  }, []);
 
   const renameProject = useCallback((pid: string, name: string) => {
     const v = name.trim();
@@ -310,6 +316,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
       setPhase,
       moveTodo,
       addProject,
+      lastAddedId,
       renameProject,
       deleteProject,
       addNote,
@@ -337,6 +344,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
       setPhase,
       moveTodo,
       addProject,
+      lastAddedId,
       renameProject,
       deleteProject,
       addNote,

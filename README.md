@@ -116,6 +116,15 @@ briefs, research bodies, verdicts, questions and the two screen titles:
 **Newsreader**. Both load from Google Fonts in `index.html`; self-host them for
 an offline desktop build.
 
+## Custom projects
+
+"Create a custom form" is two steps: set up (name, type or a new type, phases you
+can drag into order, and the sections to include), then **Arrange the page**,
+where empty placeholders of each section sit on the project page's 6-column grid.
+Drag blocks to move them and pick a width (⅓, ½, ⅔, full) to place them side by
+side. Save adds the project to the Desk, where it is highlighted as New, and its
+page uses exactly that layout.
+
 ## New-project placements
 
 "New project" opens a flow with three templates (Work, Music, Sewing) or a custom
@@ -166,3 +175,19 @@ and notes, tasks and links from Quick capture.
 `npm run seed` rewrites `server/seed.json` from `src/data/` after you change the
 sample data. Set `VITE_API_URL` to point the app at an API on another host,
 `PORT` to change the API port, `PLANAIR_DB` to move the database file.
+
+## Live prototype
+
+GitHub Pages, built from `main` by `.github/workflows/pages.yml` on every push:
+
+- https://evitalobo.github.io/plan-air/ (main: new project opens as a page)
+- https://evitalobo.github.io/plan-air/drawer/
+- https://evitalobo.github.io/plan-air/modal/
+- https://evitalobo.github.io/plan-air/side/
+- https://evitalobo.github.io/plan-air/page/
+
+Branches: `main` uses the page placement; `placement/drawer`, `placement/modal`
+and `placement/side` keep the alternatives (each differs only in `.env`).
+
+The hosted site has no API server, so each visitor's changes are saved in their own browser.
+Run `npm run dev` locally for the version backed by the SQLite API.

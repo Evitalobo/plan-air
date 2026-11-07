@@ -1,0 +1,49 @@
+# Builds the prototype from main and publishes it to the gh-pages branch, which
+# GitHub Pages serves (Settings → Pages → Deploy from a branch → gh-pages / root):
+#   /          main's own placement (VITE_NP_VARIANT in .env)
+#   /drawer/   drawer placement
+#   /modal/    modal placement
+#   /side/     side-panel placement
+#   /page/     full-page placement
+# The hosted site has no API server, so it saves changes in each visitor's browser.
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - name: Build main's placement plus all four
+        run: |
+          npx vite build --outDir site
+          for v in drawer modal side page; do
+            VITE_NP_VARIANT=$v npx vite build --outDir site/$v
+          done
+          touch site/.nojekyll
+      - name: Push to gh-pages
+        run: |
+          cd site
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish ${GITHUB_SHA::7} from ${GITHUB_REF_NAME}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
