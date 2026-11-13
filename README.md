@@ -3,7 +3,7 @@
 A coded prototype of **Planner** — a desktop app for one person running several
 unrelated projects at once: product design work, a product-management scoping
 project, a hand-tufting craft project, and a music release. It holds the plan
-and the notes in the same place.
+and the notes in the same place. As someone that has 50 different hobbies this is absolutely necessary for me.
 
 The organising idea: **every project defines its own phase vocabulary**, and
 every to-do belongs to one of that project's phases. Nothing in the app assumes
