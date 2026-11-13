@@ -12,6 +12,25 @@ a single shared workflow.
 Built from the `design_handoff_planner` bundle (high-fidelity spec, fixed
 1440 × 900 desktop window).
 
+
+## Live prototype
+
+GitHub Pages, built from `main` by `.github/workflows/pages.yml` on every push:
+
+- https://evitalobo.github.io/plan-air/ (main: new project opens as a page)
+- https://evitalobo.github.io/plan-air/drawer/
+- https://evitalobo.github.io/plan-air/modal/
+- https://evitalobo.github.io/plan-air/side/
+- https://evitalobo.github.io/plan-air/page/
+
+Branches: `main` uses the page placement; `placement/drawer`, `placement/modal`
+and `placement/side` keep the alternatives (each differs only in `.env`).
+
+The hosted site has no API server, so each visitor's changes are saved in their own browser.
+Run `npm run dev` locally for the version backed by the SQLite API.
+
+
+
 ## Running it
 
 ```bash
@@ -176,18 +195,3 @@ and notes, tasks and links from Quick capture.
 sample data. Set `VITE_API_URL` to point the app at an API on another host,
 `PORT` to change the API port, `PLANAIR_DB` to move the database file.
 
-## Live prototype
-
-GitHub Pages, built from `main` by `.github/workflows/pages.yml` on every push:
-
-- https://evitalobo.github.io/plan-air/ (main: new project opens as a page)
-- https://evitalobo.github.io/plan-air/drawer/
-- https://evitalobo.github.io/plan-air/modal/
-- https://evitalobo.github.io/plan-air/side/
-- https://evitalobo.github.io/plan-air/page/
-
-Branches: `main` uses the page placement; `placement/drawer`, `placement/modal`
-and `placement/side` keep the alternatives (each differs only in `.env`).
-
-The hosted site has no API server, so each visitor's changes are saved in their own browser.
-Run `npm run dev` locally for the version backed by the SQLite API.
